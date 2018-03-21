@@ -1,0 +1,5 @@
+redis-cli.exe
+
+
+
+flushdb

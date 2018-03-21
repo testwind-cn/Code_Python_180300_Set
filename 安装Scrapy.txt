@@ -1,0 +1,116 @@
+﻿安装 python 2.7
+https://packaging.python.org/tutorials/installing-packages/
+
+python -m pip install -U pip setuptools
+
+http://xmlsoft.org/sources/win32/python/
+	libxml2-python-2.7.7.win32-py2.7.exe
+
+easy_install lxml
+easy_install Scrapy
+
+
+VCForPython27
+	这里pip需要微软的VS2008的C语言编译器，所以如果没有安装VS2008或者你的VS版本太高，也是不行的。可以安装微软为Python开发的这个：VCForPython27
+	http://aka.ms/vcpython27   ,	https://www.microsoft.com/en-us/download/details.aspx?id=44266
+
+easy_install requests   安装时候失败了,改用下面一个 pip install requests
+pip install scrapy-redis
+pip install pymongo
+pip install pyExcelerator
+pip install pywin32    有32和64版本,可以下面网址下载 https://github.com/mhammond/pywin32/releases
+pip install ndg-httpsclient   后面是升级 pip install --upgrade ndg-httpsclient
+
+
+
+====================================
+
+启动Redis
+	D:\Tools\redis64-2.8.12>redis-server redis.windows.conf
+清空Redis
+	D:\Tools\redis64-2.8.12>D:\Tools\redis64-2.8.12\redis-cli.exe
+	127.0.0.1:6379> flushdb
+
+================
+
+
+
+
+
+
+==========================
+
+Win7 64 上安装了
+mongodb-win32-x86_64-3.4.5-signed.msi
+
+	>>> from pymongo import MongoClient
+	>>> client = MongoClient('localhost', 27017)
+	db = client['lianjia']
+	coll = db['saveinfo_5']
+	obj = coll.find_one()
+	print coll.find_one()
+	print coll.count()
+	for obj in coll.find():
+	  print obj
+	information = {"name": "quyang", "age": "25"}
+	information_id = coll.insert(information)
+	print coll.find_one()
+
+===============================
+
+Win版本Py  pywin32-218.win32-py2.7.exe
+https://sourceforge.net/projects/pywin32/files/pywin32/Build%20218/pywin32-218.win32-py2.7.exe/download
+
+
+MongoDB学习（二）MongoDB 3.2.8的安装图解（小白版） 
+http://blog.csdn.net/qq_16313365/article/details/52241357
+http://www.runoob.com/mongodb/mongodb-window-install.html
+
+MongoDb随笔，PyMongo简单使用 
+http://blog.csdn.net/callinglove/article/details/45668673
+
+
+Windows下安装libxml2并在Python中使用XPath 
+http://blog.csdn.net/shirdrn/article/details/7030026
+
+Python爬虫框架Scrapy安装使用步骤
+http://www.jb51.net/article/48607.htm
+
+使用scrapy-redis构建简单的分布式爬虫 
+http://blog.csdn.net/howtogetout/article/details/51633814
+
+redis python-redis 安装详细步骤
+http://www.cnblogs.com/cbreeze/p/5947140.html
+
+
+Windows下Redis的安装使用
+http://os.51cto.com/art/201403/431103.htm
+
+D:\Tools\redis64-2.8.12>redis-server redis.windows.conf
+
+ python lxml包的安装
+http://www.cnblogs.com/lyroge/archive/2013/02/22/2922515.html
+
+
+论一只爬虫的自我修养10：安装Scrapy – 零基础入门学习Python062
+http://blog.fishc.com/4008.html/2
+
+
+无论在windows上还是linux上都不是一个让人省心的东西，有一系列的依赖，而且easy_install的时候不会自动安装
+
+
+要按照官方的安装说明来做：
+
+http://codespeak.net/lxml/installation.html
+
+ 
+不然总是出现gcc编译的问题。
+当然首先要有 Python ：You need Python 2.3 or later.
+然后是需要：You need libxml2 and libxslt, in particular:
+使用：$sudo apt-get install libxml2 libxml2-dev 安装 libxml2 
+使用：$sudo apt-get install libxlst libxslt-dev 安装 libxslt 
+安装 python-libxml2 和 python-libxslt ：$sudo apt-get install python-libxml2 python-libxslt
+然后就可以使用：$sudo easy_install lxml 来安装最新的 lxml 了。我装的是最新版本：lxml 2.2beta1
+
+在 Cygwin 上安装也一样，直接选择安装 libxml2, libxml2-devel, libxlst, libxlst-devel, python-libxml2, python-libxslt 包安装，
+然后 $sudo easy_install lxml 就可以装上了

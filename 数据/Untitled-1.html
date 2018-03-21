@@ -1,0 +1,75 @@
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=gbk" />
+		<title>个人信用信息服务平台  </title>
+        
+<script type="text/javascript" src="https://ipcrs.pbccrc.org.cn/js/input_notice.js"></script>
+<script type="text/javascript" src="https://ipcrs.pbccrc.org.cn/page/login/js/loginreg.js"></script>  
+</head>
+
+<body>
+    <!--页面主体-->
+
+    <div id="content">
+        <div id="main">
+            
+            <div class="leftBar left">
+                <div style=" height:36px; line-height:36px; color:#202020; border-bottom:1px #c11000 solid;">
+                  <span style="font-size:16px; font-weight:bold; float:left">用户登录</span>
+                </div>
+                
+                
+                <form name="loginForm" method="post" action="/login.do" onsubmit="return check(this)"> 
+                <input type="hidden" name="method" value="login"/>
+                <input type="hidden" name="date" value="1501039621179"/>
+                	<div class="erro_div3">
+		      			<span>
+			      			
+		                   	
+	                   	</span>
+	    			</div>
+                   <div class="form-group">
+                       <div class="lable lable1">登录名：</div>
+                       <div class="inputBox">
+                           <input type="text" maxlength="16" name="loginname" id="loginname" class="inputText text1 div_left" onfocus="displayYes(this);" onblur="displayNo(this);checkLoginName();"/>
+                           <span class="notice1 span-grey">请输入登录名</span>
+                           <span class="span-grey" id="loginNameInfo"></span>
+                       </div>	                        
+                       
+                   </div>
+                   <div class="form-group">
+                       <div class="lable lable1">密&nbsp; 码：</div>
+                       <div class="inputBox position_re">
+                           <input type="password" maxlength="20" name="password" id="password" class="inputText text1 div_left" onfocus="displayYes(this);"  onblur="displayNo(this);checkPassword();" />
+                           
+                           <span class="notice1 span-grey">请输入登录密码</span>
+                           <span class="span-grey" id="passwordInfo"></span>
+                       </div>
+                       <div class="login_forget"><a href="https://ipcrs.pbccrc.org.cn/resetPassword.do?method=init" target="_self">忘记密码？</a></div>
+                   </div>
+                   <div class="form-group">
+                       <div class="lable lable1">验证码：</div>
+                       <div>
+                       		<input class = "inputText text3 left" maxLength="6" type="text" id="_@IMGRC@_" name="_@IMGRC@_" onfocus="if(document.getElementById('_@MSG@_')!=null)document.getElementById('_@MSG@_').innerHTML='';">
+<img src="/imgrc.do?0.8117620662428957" id="imgrc" class = "yzm_img"/>
+<a class = "yzm_a" href="###" onclick="document.getElementById('imgrc').src='/imgrc.do?a='+new Date().getTime()+';'">看不清，换一个</a>
+<script>document.getElementById('imgrc').style.display='';</script>
+
+                       		<span class="span-grey" id="imageCodeInfo" style="width:110px;"></span>
+                       	</div>
+                       <div style="clear:both"></div>
+                   </div>
+                   <div class="form-group mar_top_30">
+                       <div class="lable lable1"></div>
+                       <div class="inputBox">
+                          	<input type="submit" class="inputBtn btn2" value="登录"/>
+                       </div>
+                       
+                   </div>
+                   </form>
+            </div>
+
+
+</body>
+</html>
