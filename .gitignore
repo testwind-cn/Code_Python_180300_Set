@@ -2,8 +2,7 @@
 
 .idea
 .idea/
-
-# wangjun add
+.idea\
 
 
 
@@ -107,3 +106,4 @@ ENV/
 
 # mypy
 .mypy_cache/
+资产FTP/sftp_20181115/.idea/misc.xml
