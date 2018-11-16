@@ -10,8 +10,8 @@ import os
 import shutil
 import calendar
 
-srcPath='E:\\sftp_20181115\\'
-aimPath='E:\\sftp_20181115\\cleanedData\\'
+srcPath='E:\\sftp\\'
+aimPath='E:\\sftp\\cleanedData\\'
 
 #nowYear=2018
 #today=datetime.date.today()

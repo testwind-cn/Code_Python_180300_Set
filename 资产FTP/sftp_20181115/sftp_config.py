@@ -19,7 +19,7 @@ password = "Uwj1qsFnV8"
 # remote和local是相对客户端的
 remoteDir = "/tmp/"
 # ed
-# localDir = "E:/sftp_20181115/"
+# localDir = "E:/sftp/"
 localDir = "/home/data/thzc/"
 
 
@@ -33,7 +33,7 @@ class Sftp_Tool:
     # remote和local是相对客户端的
     remoteDir = "/tmp/"
     # ed
-    # localDir = "E:/sftp_20181115/"
+    # localDir = "E:/sftp/"
     localDir = "/home/data/thzc/"
 
     def sftpLog(self,info=''):
@@ -172,17 +172,17 @@ class Sftp_Tool:
             except Exception as e:
                 traceback.print_exc()
                 logging.error(str(e))
-                self.sftpLog('sftp_20181115 批量下载文件失败')
+                self.sftpLog('sftp 批量下载文件失败')
         else:
-            self.sftpLog('sftp_20181115 连接失败')
+            self.sftpLog('sftp 连接失败')
 
         self.sftpLog('批量下载文件结束')
 
         if theSftp != 'default':
             try:
                 theSftp.close()
-                logging.info('sftp_20181115 关闭')
-                print('sftp_20181115 关闭')
+                logging.info('sftp 关闭')
+                print('sftp 关闭')
             except Exception as e2:
                 print(e2)
             theSftp = 'default'

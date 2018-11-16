@@ -50,7 +50,7 @@ def scanTask(todayStr=''):
             for fileName in dataClean.needFiles:
                 realFileName = fileName + todayStr + '.csv'
                 if (realFileName in allFiles):
-                    #                    sftp_20181115.get(sftp_config.homeDir+realFileName, sftp_config.localDir+realFileName)
+                    #                    sftp.get(sftp_config.homeDir+realFileName, sftp_config.localDir+realFileName)
                     sftp.get(sftp_config.remoteDir + realFileName, sftp_config.localDir + todayStr + '/' + realFileName)
 
                     shutil.copyfile(sftp_config.localDir + todayStr + '/' + realFileName,
@@ -73,7 +73,7 @@ def scanTask(todayStr=''):
             dataClean.appendData(today, todayStr)
 
         else:
-            logging.info('sftp_20181115 连接失败')
+            logging.info('sftp 连接失败')
 
     except Exception as e:
         traceback.print_exc()

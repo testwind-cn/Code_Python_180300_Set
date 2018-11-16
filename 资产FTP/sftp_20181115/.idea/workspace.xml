@@ -93,10 +93,12 @@
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="py" value="7" />
+          <entry key="zc_new" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
+          <entry key="PLAIN_TEXT" value="1" />
           <entry key="Python" value="7" />
         </counts>
       </usages-collector>
@@ -117,25 +119,23 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/Main.py">
+        <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="418">
-              <caret line="116" column="8" selection-start-line="116" selection-start-column="8" selection-end-line="116" selection-end-column="8" />
+            <state relative-caret-position="117">
+              <caret line="71" column="18" selection-start-line="71" selection-start-column="18" selection-end-line="71" selection-end-column="18" />
               <folding>
                 <element signature="e#44#54#0" expanded="true" />
-                <element signature="e#7991#10704#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/dataClean.py">
+        <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/dataClean.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="250">
-              <caret line="49" selection-start-line="49" selection-end-line="49" />
+            <state relative-caret-position="125">
+              <caret line="9" column="13" lean-forward="true" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
               <folding>
-                <element signature="e#84#99#0" expanded="true" />
                 <element signature="e#306#1363#0" />
               </folding>
             </state>
@@ -143,24 +143,17 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/sftp_config.py">
+        <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/sftp_config.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="268">
-              <caret line="33" column="10" lean-forward="true" selection-start-line="33" selection-start-column="10" selection-end-line="33" selection-end-column="10" />
+            <state relative-caret-position="-687">
+              <caret line="29" column="23" lean-forward="true" selection-start-line="29" selection-start-column="23" selection-end-line="29" selection-end-column="23" />
               <folding>
                 <element signature="e#24#34#0" expanded="true" />
-                <element signature="e#568#999#0" />
-                <element signature="e#1044#1267#0" />
-                <element signature="e#1316#1627#0" />
-                <element signature="e#1667#1894#0" />
-                <element signature="e#2315#4874#0" />
-                <element signature="e#5126#6716#0" />
                 <element signature="e#6531#8168#0" />
                 <element signature="e#8278#8948#0" />
                 <element signature="e#9063#9665#0" />
                 <element signature="e#9583#10049#0" />
                 <element signature="e#10116#10504#0" />
-                <marker date="1542292251231" expanded="true" signature="692:745" ph="..." />
               </folding>
             </state>
           </provider>
@@ -177,10 +170,14 @@
       <find>Dir</find>
       <find>remoteDir</find>
       <find>sftp_config</find>
+      <find>sftp_20181115</find>
     </findStrings>
+    <replaceStrings>
+      <replace>sftp</replace>
+    </replaceStrings>
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/sftp_config.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/sftp_config.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -189,6 +186,9 @@
         <option value="$PROJECT_DIR$/Main_new.py" />
         <option value="$PROJECT_DIR$/sftp_config.py" />
         <option value="$PROJECT_DIR$/Main.py" />
+        <option value="$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/dataClean.py" />
+        <option value="$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/Main.py" />
+        <option value="$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/sftp_config.py" />
       </list>
     </option>
   </component>
@@ -199,8 +199,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="625" />
-    <option name="y" value="168" />
+    <option name="x" value="396" />
+    <option name="y" value="79" />
     <option name="width" value="1429" />
     <option name="height" value="946" />
   </component>
@@ -230,7 +230,7 @@
           <expand>
             <path>
               <item name="sftp" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sftp" type="462c0819:PsiDirectoryNode" />
+              <item name="sftp_20181115" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -329,14 +329,14 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="783" y="256" width="1429" height="946" extended-state="0" />
+    <frame x="396" y="79" width="1429" height="946" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1985348" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.27820373" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.2423841" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.60560745" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -366,12 +366,12 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../../Python/资产FTP/sftp/dataClean.py</url>
+          <url>file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/dataClean.py</url>
           <line>128</line>
           <option name="timeStamp" value="25" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../../Python/资产FTP/sftp/sftp_config.py</url>
+          <url>file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/sftp_config.py</url>
           <line>42</line>
           <option name="timeStamp" value="26" />
         </line-breakpoint>
@@ -476,7 +476,7 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/../data/20180907/DB2_POSL_POSL_TRUST_APPLY_20180907.csv" />
     <entry file="file:///opt/anaconda3/lib/python3.6/genericpath.py" />
-    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/venv/lib/python3.6/site-packages/paramiko/sftp_client.py">
+    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/venv/lib/python3.6/site-packages/paramiko/sftp_client.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="257">
           <caret line="250" column="33" lean-forward="true" selection-start-line="250" selection-start-column="33" selection-end-line="250" selection-end-column="33" />
@@ -490,7 +490,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/venv/lib/python3.6/site-packages/paramiko/sftp_attr.py">
+    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/venv/lib/python3.6/site-packages/paramiko/sftp_attr.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="583">
           <caret line="120" column="28" selection-start-line="120" selection-start-column="28" selection-end-line="120" selection-end-column="28" />
@@ -498,14 +498,14 @@
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/sftpLog.log" />
-    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/sftpLog.log">
+    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/sftpLog.log">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="21">
           <caret line="19462" column="26" selection-start-line="19462" selection-start-column="26" selection-end-line="19462" selection-end-column="26" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/dataClean_old.py">
+    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/dataClean_old.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://D:/TEMP/Main.py">
@@ -526,53 +526,51 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/sftpUtil.py">
+    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/sftpUtil.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="266">
           <caret line="38" column="26" lean-forward="true" selection-start-line="38" selection-start-column="26" selection-end-line="38" selection-end-column="26" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/dataClean.py">
+    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/Main.py.20181115.zc_new">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="49" selection-start-line="49" selection-end-line="49" />
+        <state relative-caret-position="171">
+          <caret line="9" column="16" lean-forward="true" selection-start-line="9" selection-start-column="16" selection-end-line="9" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/dataClean.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="125">
+          <caret line="9" column="13" lean-forward="true" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
           <folding>
-            <element signature="e#84#99#0" expanded="true" />
             <element signature="e#306#1363#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/Main.py">
+    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="116" column="8" selection-start-line="116" selection-start-column="8" selection-end-line="116" selection-end-column="8" />
+        <state relative-caret-position="117">
+          <caret line="71" column="18" selection-start-line="71" selection-start-column="18" selection-end-line="71" selection-end-column="18" />
           <folding>
             <element signature="e#44#54#0" expanded="true" />
-            <element signature="e#7991#10704#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp/sftp_config.py">
+    <entry file="file://$PROJECT_DIR$/../../Python/资产FTP/sftp_20181115/sftp_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="33" column="10" lean-forward="true" selection-start-line="33" selection-start-column="10" selection-end-line="33" selection-end-column="10" />
+        <state relative-caret-position="-687">
+          <caret line="29" column="23" lean-forward="true" selection-start-line="29" selection-start-column="23" selection-end-line="29" selection-end-column="23" />
           <folding>
             <element signature="e#24#34#0" expanded="true" />
-            <element signature="e#568#999#0" />
-            <element signature="e#1044#1267#0" />
-            <element signature="e#1316#1627#0" />
-            <element signature="e#1667#1894#0" />
-            <element signature="e#2315#4874#0" />
-            <element signature="e#5126#6716#0" />
             <element signature="e#6531#8168#0" />
             <element signature="e#8278#8948#0" />
             <element signature="e#9063#9665#0" />
             <element signature="e#9583#10049#0" />
             <element signature="e#10116#10504#0" />
-            <marker date="1542292251231" expanded="true" signature="692:745" ph="..." />
           </folding>
         </state>
       </provider>

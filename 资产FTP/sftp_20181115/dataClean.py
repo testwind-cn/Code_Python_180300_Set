@@ -10,8 +10,8 @@ import os
 import shutil
 import calendar
 
-#srcPath='E:\\sftp_20181115\\'
-#aimPath='E:\\sftp_20181115\\cleanedData\\'
+#srcPath='E:\\sftp\\'
+#aimPath='E:\\sftp\\cleanedData\\'
 
 srcPath = '/home/thjk01/thzc/'
 aimPath = '/home/thjk01/thzc/cleanedData/'
