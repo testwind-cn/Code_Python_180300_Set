@@ -9,35 +9,71 @@ import paramiko
 import datetime
 import sftpUtil
 import dataClean
+from file_check import myLocalFile
 
-# SFTP服务器的IP、端口、账户、密码
-host = "172.31.71.71"
-port = 12306  # not str
-username = "yuanxj"
-password = "Uwj1qsFnV8"
-
-# remote和local是相对客户端的
-remoteDir = "/tmp/"
-# ed
-# localDir = "E:/sftp/"
-localDir = "/home/data/thzc/"
 
 
 class Sftp_Tool:
     # SFTP服务器的IP、端口、账户、密码
-    host = "172.31.71.71"
-    port = 12306  # not str
-    username = "yuanxj"
-    password = "Uwj1qsFnV8"
-
+    __m_host = "172.31.71.71"
+    __m_port = 12306  # not str
+    __m_username = "yuanxj"
+    __m_password = "Uwj1qsFnV8"
     # remote和local是相对客户端的
-    remoteDir = "/tmp/"
-    # ed
-    # localDir = "E:/sftp/"
-    localDir = "/home/data/thzc/"
+    __m_remoteDir = "/tmp/"
+    __m_localDir = "/home/data/thzc/"
+    # test on Windows
+    __m_localDir = "D:/sftp/"
+    ##########################
 
-    def sftpLog(self,info=''):
-        logging.info(info)
+
+    # SFTP服务器的IP、端口、账户、密码
+    host = __m_host
+    port = __m_port
+    username = __m_username
+    password = __m_password
+    # remote和local是相对客户端的
+    remoteDir = __m_remoteDir
+    localDir = __m_localDir
+    theSftp = None  # Ftp连接
+
+    def __init__(self, h='', p='', u='', s='',r='', l=''):
+        # host
+        if h is None or len(h) == 0:
+            self.host = self.__m_host
+        else:
+            self.host = h
+        # port
+        if p is None or len(p) == 0:
+            self.port = self.__m_port
+        else:
+            self.port = p
+        # username
+        if u is None or len(u) == 0:
+            self.username = self.__m_username
+        else:
+            self.username = u
+        # password
+        if s is None or len(s) == 0:
+            self.password = self.__m_password
+        else:
+            self.password = s
+        # remoteDir
+        if r is None or len(r) == 0:
+            self.remoteDir = self.__m_remoteDir
+        else:
+            self.remoteDir = r
+        #
+        if l is None or len(l) == 0:
+            self.localDir = self.__m_localDir
+        else:
+            self.localDir = l
+
+    def sftpLog(self,info='',isInfo=True):
+        if isInfo:
+            logging.info(info)
+        else:
+            logging.error(info)
         print(info)
 
     def getTheDateStr(self,thedayStr=''):
@@ -77,15 +113,80 @@ class Sftp_Tool:
                 os.makedirs(dirStr)
                 os.chmod(dirStr, stat.S_IRWXO + stat.S_IRWXG + stat.S_IRWXU)
         except Exception as e:
-            print(e)
+            self.sftpLog("safeMakedir Error: "+str(e), False)
         return
 
-#    sftp_config.remoteDir
-#    sftp_config.localDir
+    def openSFTP(self):
+        self.closeSFTP()
+        result = sftpUtil.getConnect(self.host, self.port, self.username, self.password)
+        if result[0] == 1:
+            self.theSftp = paramiko.SFTPClient.from_transport(result[2])
+        else:
+            self.sftpLog('sftp 连接失败', False)
 
-    def downloadFilesByDay(self,theSftp='default', thedayStr='', allFiles=None, fromRemoteDir='', toLocalDir=''):
-        if theSftp == 'default' or allFiles is None:
+    def closeSFTP(self):
+        ###  需要调整!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (not self.theSftp is None) and isinstance(self.theSftp, paramiko.SFTPClient):
+            try:
+                self.theSftp.close()
+                self.sftpLog('sftp 关闭')
+            except Exception as e2:
+                self.sftpLog("出错: "+str(e2), False)
+        self.theSftp = None
+
+    def getFilesList(self, rmdir, start='', ext='', sdate='', edate=''):
+        ###  需要调整!!!!!!!!!!!!!!!!!!!!!!!!!
+        retFiles = []
+        # a. 只有开始时间，就取 sdate 的整日
+        # b. 只有结束时间，就取 1970 到 edate
+        # c. 同时有，就取之间
+        # d . 都没有，就取 1970 - 2100
+        if (edate is None) or len(edate) <= 0:      #没有结束时间
+            if (sdate is None) or len(sdate) <= 0:  # d. 没有开始时间
+                s_date = self.getTheDateTick("19700101")
+                e_date = self.getTheDateTick("21000101")
+            else:                                   # a. 有开始时间
+                s_date = self.getTheDateTick(sdate)
+                e_date = time.mktime((self.getTheDate(sdate) + datetime.timedelta(days=1)).timetuple())
+        else:                                       # 有结束时间
+            if (sdate is None) or len(sdate) <= 0:  # b. 没有开始时间
+                s_date = self.getTheDateTick("19700101")
+                e_date = time.mktime((self.getTheDate(edate) + datetime.timedelta(days=1)).timetuple())
+            else:                                   # c. 有开始时间
+                s_date = self.getTheDateTick(sdate)
+                e_date = time.mktime((self.getTheDate(edate) + datetime.timedelta(days=1)).timetuple())
+
+        if self.theSftp is None or (not isinstance(self.theSftp, paramiko.SFTPClient)):
+            return retFiles
+        try:
+            listFiles = self.theSftp.listdir_attr(rmdir)
+            if len(listFiles) > 0:
+                for f in listFiles:
+                    # p =f.filename.rfind('.')
+                    # if ( p < 0 ):
+                    #     t_ext = ''
+                    #     t_name = f.filename
+                    # else:
+                    #     t_ext= f.filename[p+1:len(f.filename)]
+                    #     t_name = f.filename[0:p]
+                    # ^ 获取文件名和后缀
+                    if (len(start) == 0 or f.filename.lower().startswith(start.lower())) and \
+                            (len(ext) == 0 or f.filename.lower().endswith(ext.lower())) and \
+                            s_date <= f.st_mtime and f.st_mtime < e_date:
+                        retFiles.append(f)
+        except Exception as e:
+            self.sftpLog('sftp 文件列表失败:'+str(e), False)
+            # traceback.print_exc()
+        return retFiles
+
+    def downloadFiles(self, theSftp='default', thedayStr='', allFiles=None, fromRemoteDir='', toLocalDir=''):
+        return
+
+    def downloadFilesByDay(self, theSftp='default', thedayStr='', allFiles=None, fromRemoteDir='', toLocalDir=''):
+        if theSftp == 'default' or theSftp is None:
             return
+
+        self.theSftp = theSftp
 
         if fromRemoteDir is None or len(fromRemoteDir) == 0:
             fromRemoteDir = self.remoteDir
@@ -93,52 +194,45 @@ class Sftp_Tool:
         if toLocalDir is None or len(toLocalDir) == 0:
             toLocalDir = self.localDir
 
-        thedayStr = self.getTheDateStr(thedayStr)
-        thedatetick1 = self.getTheDateTick(thedayStr)
-
-        date2 = self.getTheDate(thedayStr) + datetime.timedelta(days=1)
-        thedatetick2 = time.mktime(date2.timetuple())
+        getList = self.getFilesList(fromRemoteDir, start='', ext='', sdate=thedayStr, edate='')
 
         self.sftpLog('单日文件下载开始' + thedayStr)
 
         self.safeMakedir(toLocalDir)
 
-        for aFile in allFiles:
+        for aFile in getList:
             # aFile.filenmae        # aFile.st_atime        # aFile.st_mtime
             realFileName = aFile.filename
-            filedate = aFile.filename[len(aFile.filename) - 12: len(aFile.filename) - 4]
-
-            if ( thedatetick1 <= aFile.st_mtime and aFile.st_mtime < thedatetick2 and filedate != thedayStr) or (
-                    filedate == thedayStr):
-                self.safeMakedir(toLocalDir + thedayStr)
-
+            if allFiles is None or len(allFiles) == 0 or realFileName in allFiles:
+                self.safeMakedir(os.path.join(toLocalDir, thedayStr))
                 try:
                     isdownloaded = False
-                    stinfo1 = theSftp.stat(fromRemoteDir + realFileName)
+                    srcFile = os.path.join(fromRemoteDir, realFileName)
+                    destFile = os.path.join(toLocalDir, thedayStr + '/', realFileName)
+                    stinfo1 = theSftp.stat(srcFile)
                     # 可以用上面的 aFile 里的信息代替
 
-                    if os.path.exists(toLocalDir + thedayStr + '/' + realFileName):
-                        stinfo2 = os.stat(toLocalDir + thedayStr + '/' + realFileName)
+                    if os.path.isfile(destFile): # 文件已经存在，就比对下大小、时间
+                        stinfo2 = os.stat(destFile)
                         if (stinfo1.st_size == stinfo2.st_size and abs(
                                 int(stinfo2.st_mtime) - stinfo1.st_mtime) < 10):  # 本地文件时间是float
                             isdownloaded = True
 
                     if isdownloaded == False:
-                        theSftp.get(fromRemoteDir + realFileName,
-                                    toLocalDir + thedayStr + '/' + realFileName)
+                        theSftp.get(srcFile, destFile)
                         # 修改访问和修改时间
-                        os.chmod(toLocalDir + thedayStr + '/' + realFileName,
+                        os.chmod(destFile,
                                  stat.S_IWOTH + stat.S_IROTH + stat.S_IWGRP + stat.S_IRGRP + stat.S_IWUSR + stat.S_IRUSR)
-                        os.utime(toLocalDir + thedayStr + '/' + realFileName,
+                        os.utime(destFile,
                                  (stinfo1.st_atime, stinfo1.st_mtime))
-                        self.sftpLog('成功下载 ' + realFileName)
+                        self.sftpLog('成功下载 ' + destFile)
                     else:
-                        self.sftpLog('已经存在 ' + realFileName)
+                        self.sftpLog('已经存在 ' + destFile)
 
                 except Exception as e:
                     traceback.print_exc()
                     logging.error(str(e))
-                    self.sftpLog('文件下载失败：' + realFileName)
+                    self.sftpLog('文件下载失败：' + destFile)
 
         self.sftpLog('单日文件下载结束 ' + thedayStr)
 
@@ -161,13 +255,10 @@ class Sftp_Tool:
         if result[0] == 1:
             try:
                 theSftp = paramiko.SFTPClient.from_transport(result[2])
-                allFiles = theSftp.listdir_attr( fromRemoteDir )
-
-                if len(allFiles) > 0:
-                    for i in range(0, days):
-                        date2 = date1 - datetime.timedelta(days=(days - i - 1))
-                        thedayStr2 = date2.strftime("%Y%m%d")
-                        self.downloadFilesByDay(theSftp=theSftp, thedayStr=thedayStr2, allFiles=allFiles, fromRemoteDir=fromRemoteDir, toLocalDir=toLocalDir)
+                for i in range(0, days):
+                    date2 = date1 - datetime.timedelta(days=(days - i - 1))
+                    thedayStr2 = date2.strftime("%Y%m%d")
+                    self.downloadFilesByDay(theSftp=theSftp, thedayStr=thedayStr2, allFiles=None, fromRemoteDir=fromRemoteDir, toLocalDir=toLocalDir)
 
             except Exception as e:
                 traceback.print_exc()
@@ -187,55 +278,62 @@ class Sftp_Tool:
                 print(e2)
             theSftp = 'default'
 
-    def copyFiles(self, fileNames, toDir, fromDir=''):
+    def copyFiles(self, toDir, findStr='', fileNames=None, fromDir=''):
         # 设置默认值
-        if toDir is None or len(toDir) == 0 or fileNames is None or len(fileNames) == 0:
+        if toDir is None or len(toDir) == 0:
             return
         if fromDir is None or len(fromDir) == 0:
             fromDir = self.localDir
 
         # 设置默认值
-
         self.sftpLog('纯文件复制开始 from:' + fromDir + ' to: '+toDir)
 
         self.safeMakedir(toDir)  # '/home/thjk01/thzc/'
         #        self.safeMakedir(dataClean.aimPath)  # '/home/thjk01/thzc/cleanedData/'
 
-        for fileName in fileNames:
-            realFileName = fileName
-            if os.path.isfile(fromDir + realFileName):
-                isdownloaded = False
-                stinfo1 = os.stat(fromDir + realFileName)
+        fileList = myLocalFile.getchild(fromDir)
 
-                if os.path.exists(toDir + realFileName):
-                    stinfo2 = os.stat(toDir + realFileName)
-                    if (stinfo1.st_size == stinfo2.st_size and abs(
-                            stinfo2.st_mtime - stinfo1.st_mtime) < 10):  # 本地文件时间是float
-                        isdownloaded = True
+        for fromFile in fileList:
+            shortname = os.path.basename(fromFile)
+            toFile = os.path.join(toDir, shortname)
 
-                if (isdownloaded == False):
-                    shutil.copyfile(fromDir + realFileName, toDir + realFileName)
+            # 下面这句话，只能拷贝名字在列表中的（列表为空则不管），或者文件包含findStr的文件
+            if (fileNames is None or len(fileNames) == 0 or shortname in fileNames) and \
+                    (findStr is None or len(findStr) == 0 or shortname.find(findStr) >= 0):
+                if os.path.isfile(fromFile):
+                    isdownloaded = False
+                    stinfo1 = os.stat(fromFile)
 
-                    # 修改访问和修改时间
-                    os.chmod(toDir + realFileName, stat.S_IWOTH + stat.S_IROTH + stat.S_IWGRP + stat.S_IRGRP + stat.S_IWUSR + stat.S_IRUSR)
-                    os.utime(toDir + realFileName, (stinfo1.st_atime, stinfo1.st_mtime))
+                    if os.path.isfile(toFile):
+                        stinfo2 = os.stat(toFile)
 
-                    self.sftpLog('成功Copy文件 ' + realFileName)
+                        if (stinfo1.st_size == stinfo2.st_size and abs(
+                                stinfo2.st_mtime - stinfo1.st_mtime) < 10):  # 本地文件时间是float
+                            isdownloaded = True
+
+                    if not isdownloaded:
+                        shutil.copyfile(fromFile, toFile)
+
+                        # 修改访问和修改时间
+                        os.chmod(toFile, stat.S_IWOTH + stat.S_IROTH + stat.S_IWGRP + stat.S_IRGRP + stat.S_IWUSR + stat.S_IRUSR)
+                        os.utime(toFile, (stinfo1.st_atime, stinfo1.st_mtime))
+
+                        self.sftpLog('成功Copy文件 ' + toFile)
+                    else:
+                        self.sftpLog('已经存在 ' + toFile)
                 else:
-                    self.sftpLog('已经存在 ' + realFileName)
-            else:
-                self.sftpLog('文件不存在 ' + realFileName)
+                    self.sftpLog('文件不存在 ' + fromFile)
 
-        self.sftpLog('纯文件复制结束 from:' + fromDir + ' to: ' + toDir)
+        self.sftpLog('纯文件复制结束 from:' + fromDir + ' to: '+toDir)
 
-    def copyFilesByDay(self, fileNames, toDir, thedayStr='',fromDir=''):
-        # 设置默认值
-        if toDir is None or len(toDir) == 0 or fileNames is None or len(fileNames) == 0:
+    def copyFilesByDay(self, toDir, thedayStr='', fileNames=None, fromDir=''):
+        # 检查默认值
+        if toDir is None or len(toDir) == 0:
             return
         if fromDir is None or len(fromDir) == 0:
             fromDir = self.localDir
         thedayStr = self.getTheDateStr(thedayStr)
-        # 设置默认值
+        # 检查默认值
 
         self.sftpLog('单日文件复制开始 ' + thedayStr)
 
@@ -243,26 +341,31 @@ class Sftp_Tool:
 #        self.safeMakedir(dataClean.aimPath)  # '/home/thjk01/thzc/cleanedData/'
 
         realFileNames = []
-        for fileName in fileNames:
-            realFileNames.append(fileName + thedayStr + '.csv')
+        if isinstance(fileNames, list):
+            for fileName in fileNames:
+                realFileNames.append(fileName + thedayStr + '.csv')
 
-        self.copyFiles(realFileNames,toDir=toDir,fromDir=fromDir+thedayStr+'/')
+        # self.copyFiles(toDir=os.path.join(toDir, thedayStr), findStr=thedayStr, fileNames=realFileNames, fromDir=os.path.join(fromDir, thedayStr))
+        # 上面的是要文件名包含 20181115，下面的不用
 
-    def copyFilesByRange(self, fileNames, toDir, thedayStr='', days=1, fromDir=''):
-        if toDir is None or len(toDir) == 0 or fileNames is None or len(fileNames) == 0:
+        self.copyFiles(toDir=os.path.join(toDir, thedayStr), findStr='', fileNames=realFileNames, fromDir=os.path.join(fromDir, thedayStr))
+
+    def copyFilesByRange(self, toDir, thedayStr='', days=1, fileNames=None, fromDir=''):
+        # 检查默认值
+        if toDir is None or len(toDir) == 0:
             return
         if fromDir is None or len(fromDir) == 0:
             fromDir = self.localDir
-
         thedayStr = self.getTheDateStr(thedayStr)
         date1 = self.getTheDate(thedayStr)
+        # 检查默认值
 
         self.sftpLog('批量复制文件开始')
 
         for i in range(0, days):
             date2 = date1 - datetime.timedelta(days=(days - i - 1))
             thedayStr2 = date2.strftime("%Y%m%d")
-            self.copyFilesByDay(fileNames=fileNames, toDir=toDir,thedayStr=thedayStr2, fromDir=fromDir)
+            self.copyFilesByDay(toDir=toDir, thedayStr=thedayStr2, fileNames=fileNames, fromDir=fromDir)
 
         self.sftpLog('批量复制文件结束')
 

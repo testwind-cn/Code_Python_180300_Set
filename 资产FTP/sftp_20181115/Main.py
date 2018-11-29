@@ -110,11 +110,11 @@ if __name__ == "__main__":
     try:
         print('start')
         # scheduler.start()
-
-        aSftp = Sftp_Config()
-
-        aSftp.downloadFilesByRange(thedayStr=thedayStr, days=days,fromRemoteDir=aSftp.remoteDir, toLocalDir=aSftp.localDir)
-        aSftp.copyFilesByRange(fileNames=dataClean.needFiles, toDir=dataClean.srcPath,thedayStr=thedayStr, days=days, fromDir=aSftp.localDir)
+        aSftp = sftp_config.Sftp_Tool()
+        aSftp.downloadFilesByRange(thedayStr=thedayStr, days=days, fromRemoteDir=aSftp.remoteDir, toLocalDir=aSftp.localDir)
+        dataClean.srcPath = "D:/stp_clean"
+        aSftp.copyFilesByRange(toDir=dataClean.srcPath, thedayStr=thedayStr, days=days, fileNames=None, fromDir=aSftp.localDir)
+        # copyFilesByRange(fileNames=dataClean.needFiles,
         aSftp.cleanFilesByRange(thedayStr=thedayStr, days=days)
         #        scanTask()
 
