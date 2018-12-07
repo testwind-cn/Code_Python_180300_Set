@@ -4,7 +4,7 @@
 import sys
 import logging
 import traceback
-import os,stat
+import os, stat
 import shutil
 import time
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -111,13 +111,19 @@ if __name__ == "__main__":
         print('start')
         # scheduler.start()
         aSftp = sftp_config.Sftp_Tool()
-        aSftp.downloadFilesByRange(thedayStr=thedayStr, days=days, fromRemoteDir=aSftp.remoteDir, toLocalDir=aSftp.localDir)
-        dataClean.srcPath = "D:/stp_clean"
-        aSftp.copyFilesByRange(toDir=dataClean.srcPath, thedayStr=thedayStr, days=days, fileNames=None, fromDir=aSftp.localDir)
-        # copyFilesByRange(fileNames=dataClean.needFiles,
-        aSftp.cleanFilesByRange(thedayStr=thedayStr, days=days)
-        #        scanTask()
 
+        isTest = True
+        if isTest:
+            aSftp.localDir = "D:/sftp/"
+            dataClean.srcPath = "D:/stp_clean/"
+            dataClean.aimPath = 'D:/stp_clean/cleanedData/'
+
+        aSftp.downloadFilesByRange(thedayStr=thedayStr, days=days, fromRemoteDir=aSftp.remoteDir, toLocalDir=aSftp.localDir)
+        aSftp.copyFilesByRange(toDir=dataClean.srcPath, thedayStr=thedayStr, days=days, fileNames=None, fromDir=aSftp.localDir)
+        # copyFilesByRange(fileNames=dataClean.needFiles, # 拷贝文件，如果有需要的文件列表，就传入。没有就传入 None
+        aSftp.cleanFilesByRange(thedayStr=thedayStr, days=days)
+        aSftp.cleanFilePermission()
+        #        scanTask()
         print('end')
     except Exception as e:
         #        scheduler.shutdown()
