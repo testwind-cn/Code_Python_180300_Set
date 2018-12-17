@@ -3,7 +3,7 @@ import traceback
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-import sftpUtil
+from wj_tools import sftpUtil
 import sftp_config
 import paramiko
 import datetime
@@ -30,7 +30,7 @@ def scanTask():
         
         deleteDay=str(today-relativedelta(days=+15)).replace('-','')
         
-        result=sftpUtil.getConnect(sftp_config.host,sftp_config.port,sftp_config.username,sftp_config.password)
+        result= sftpUtil.getConnect(sftp_config.host, sftp_config.port, sftp_config.username, sftp_config.password)
         if(result[0]==1):
             sftp = paramiko.SFTPClient.from_transport(result[2])
             allFiles=sftp.listdir(sftp_config.homeDir)            
@@ -63,14 +63,14 @@ def scanTask():
 #            for fileName in needFiles:
 #                realFileName=fileName+todayStr+'.csv'
 #                if(realFileName in allFiles):
-#                    sftp.get(sftp_config.homeDir+realFileName,sftp_config.localDir+realFileName)
+#                    sftp.get(sftp_config.homeDir+realFileName,sftp_config.__m_localDir+realFileName)
 #                    logging.info('成功下载 '+realFileName)
 #                else:
 #                    logging.info('文件不存在 '+realFileName)
             
 #            realFileName='dkyqqd_0002_'+todayStr+'.dat'
 #            if realFileName in allFiles:
-#                sftp.get(sftp_config.homeDir+realFileName,sftp_config.localDir+realFileName)
+#                sftp.get(sftp_config.homeDir+realFileName,sftp_config.__m_localDir+realFileName)
 #                logging.info('成功下载 '+realFileName )
 #            else:
 #                logging.info('文件不存在 '+realFileName)

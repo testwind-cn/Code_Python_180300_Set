@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import sftp_config
+from wj_tools import sftp_config
 import paramiko
 import os
 import stat
@@ -9,9 +9,9 @@ import stat
 def getConnect(host, port, username, password):
     """
     :param host: SFTP ip
-    :param port: SFTP port
+    :param port: SFTP __m_port
     :param username: SFTP userName
-    :param password: SFTP password
+    :param password: SFTP __m_password
     :return: transport
     """
     print("SFTP connection...")
@@ -108,7 +108,7 @@ def upload(handle, remoteRelDir, localPath):
             if localPath.startswith(sftp_config.localDir):  # 绝对路径
                 localRelDir = localPath.replace(sftp_config.localDir, "/")
                 localRelDir = formatPath(localRelDir)
-            else:  # 相对(localDir)路径
+            else:  # 相对(__m_localDir)路径
                 localPath = formatPath(sftp_config.localDir, localPath)
 
         if remoteRelDir == "":
