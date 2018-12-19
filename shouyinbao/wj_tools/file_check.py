@@ -135,7 +135,7 @@ class myLocalFile:
         return -1
 
     @staticmethod
-    def unzipTheFile(file, newpath):
+    def unzipTheFile(file, newpath, start: str="", ext: str="", fstr: str= '', default: bool=True):
         # unzip zip file , foldertype = 1 : # 9999900000/201811/01 # 9999900000/20181101
         zip_file = zipfile.ZipFile(file)
         if os.path.isfile(newpath):
@@ -143,8 +143,10 @@ class myLocalFile:
         if not os.path.exists(newpath):
             pathlib.Path(newpath).mkdir(parents=True, exist_ok=True)
         for names in zip_file.namelist():
-            # if names.lower().startswith(cf.filepre1().lower()):  #'t1_trxrecord'
-            zip_file.extract(names, newpath)
+            # if names.lower().startswith(cF.filepre1().lower()):  #'t1_trxrecord'
+            v, d = myLocalFile.checkname(names, start, ext, fstr, default)
+            if v:
+                zip_file.extract(names, newpath)
         zip_file.close()
         return
 

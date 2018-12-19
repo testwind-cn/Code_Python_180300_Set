@@ -282,7 +282,7 @@ class Sftp_Tool:
         myLog.Log('文件下载开始 from:' + from_dir + ' to: ' + to_dir)
         # 设置默认值
 
-        fileList = self.getRmFilesList(from_dir, start, ext, sdate, edate, fstr, file_names, and_op)  # 只处理列表中的文件
+        fileList = self.getRmFilesList(from_dir, start, ext, fstr, sdate, edate, file_names, and_op)  # 只处理列表中的文件
 
         for fromFile in fileList:
             shortname = fromFile.filename   # fromFile.filename        # fromFile.st_atime        # fromFile.st_mtime
