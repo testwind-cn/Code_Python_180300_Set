@@ -6,6 +6,7 @@ import pathlib
 # import zipfile
 # import subprocess
 # import platform
+import datetime
 # hdfs
 from hdfs.client import Client
 # hdfs
@@ -181,7 +182,7 @@ def run_hive_test(conf: ConfigData):
     auth = conf.hive_auth()  # 'PLAIN'
     test = conf.hive_test()  # "select * from test.test1"
 
-    conn = connect(host=host, port=port, auth_mechanism=auth, user=user, password='Redhat@20161')
+    conn = connect(host=host, port=port, auth_mechanism=auth, user=user, password='Redhat@2016')
     cur = conn.cursor()
 
     cur.execute(test)
@@ -211,7 +212,7 @@ def run_hive(conf: ConfigData, the_date: str, is_baoli=True):
     the_date = StrTool.get_the_date_str(the_date)  # "20181101"
     root_path = conf.hdfs_dir(is_baoli)  # "/shouyinbao/bl_shouyinbao/UTF8/"
     file_pre = conf.file_pre1()  # "t1_trxrecord_"
-    file_ext = conf.file_ext1()  # "_V2.csv"
+    file_ext = conf.file_ext2()  # "_V2.csv"
 
     print("Start\n")
 
@@ -244,25 +245,36 @@ if __name__ == "__main__":
     #    return_code = subprocess.call("./ftpcmd.sh", shell=True)
     #    print(return_code)
 
-    cf = ConfigData(False)
+    cf = ConfigData(is_test=True)
 
     if cf.is_test():
-        the_date1 = cf.test_date()
+        day_str = cf.test_date()
+        days = 190
     else:
-        the_date1 = StrTool.get_param_str(1, "")
-        # days = StrTool.get_param_int(2, 1)
-
-    #    run_conv_file_local(cf, the_date=the_date1) # not use
-    #    run_conv_file_hdfs(cf, the_date=the_date1)  # not use
+        day_str = StrTool.get_param_str(1, "")
+        days = StrTool.get_param_int(2, 1)
 
     run_hdfs_test(cf)
     run_hive_test(cf)
 
-    run_remove_files(cf, the_date1, 0)
-    run_unzip_file(cf, the_date=the_date1)  # "20181101"
+    day_str = StrTool.get_the_date_str(day_str)
 
-    run_conv_file_local_to_hdfs(cf, the_date=the_date1, is_baoli=False)
-    run_hive(cf, the_date=the_date1, is_baoli=False)
-    for i in range(-45, -15):
-        run_remove_files(cf, the_date1, i)
+    del_range = 30       # 删除旧数据的时间范围，天
+    keep_range = 15      # 保留最近旧数据的时间范围，天
+
+    for i in range(-(keep_range+del_range), -keep_range):
+        run_remove_files(cf, day_str, i - days + 1)
+
+    date1 = StrTool.get_the_date(day_str)
+    for i in range(0, days):
+        delta = days - i - 1
+        date2 = date1 - datetime.timedelta(days=delta)
+        day_str2 = date2.strftime("%Y%m%d")
+
+        run_remove_files(cf, day_str2, -(delta + keep_range))
+        run_remove_files(cf, day_str2, 0)
+        run_unzip_file(cf, the_date=day_str2)
+        run_conv_file_local_to_hdfs(cf, the_date=day_str2, is_baoli=False)
+        run_hive(cf, the_date=day_str2, is_baoli=False)
+
     print("ok")

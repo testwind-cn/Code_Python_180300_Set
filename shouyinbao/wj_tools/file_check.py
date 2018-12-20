@@ -192,9 +192,9 @@ class MyHdfsFile:
         if the_dir is None:
             return False
         else:
-            if (f_type & 1) > 0 and the_dir['f_type'].lower() == 'file':
+            if (f_type & 1) > 0 and the_dir['type'].lower() == 'file':
                 return True
-            if (f_type & 2) > 0 and the_dir['f_type'].lower() == 'directory':
+            if (f_type & 2) > 0 and the_dir['type'].lower() == 'directory':
                 return True
         return False
 
