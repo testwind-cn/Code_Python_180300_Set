@@ -42,20 +42,20 @@ def runCopyFile(isBaoli=True):
 
     print("Start\n")
 
-    branchs = myLocalFile.getchild(root_path)
+    branchs = myLocalFile.get_child(root_path)
     for aBranch in branchs:
-        if myLocalFile.checkbranch(aBranch):
-            monthes = myLocalFile.getchild(aBranch)
+        if myLocalFile.check_branch(aBranch):
+            monthes = myLocalFile.get_child(aBranch)
             for aMonth in monthes:
-                theMonth = myLocalFile.checkmonth(aMonth)
+                theMonth = myLocalFile.check_month(aMonth)
                 if theMonth > 0:
-                    days = myLocalFile.getchild(aMonth)
+                    days = myLocalFile.get_child(aMonth)
                     for aDay in days:
-                        theDay = myLocalFile.checkday(aDay)
+                        theDay = myLocalFile.check_day(aDay)
                         if theDay > 0:
-                            files = myLocalFile.getchild(aDay)
+                            files = myLocalFile.get_child(aDay)
                             for aFile in files:
-                                if myLocalFile.checkfile(aFile, start=filepre, ext=fileext):
+                                if myLocalFile.check_file(aFile, start=filepre, ext=fileext):
                                     copyTheFile(destdir, aBranch, theMonth, theDay, aFile, 1)
 
 

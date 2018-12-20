@@ -6,7 +6,7 @@ import time
 import datetime
 import dataClean
 from wj_tools.file_check import myLocalFile
-from wj_tools import datestr
+from wj_tools.str_tool import StrTool
 
 
 class Sftp_Worker:
@@ -86,7 +86,7 @@ class Sftp_Worker:
             from_dir = self.remoteDir
         if type(to_dir) is not str or len(to_dir) == 0:
             to_dir = self.localDir
-        day_str = datestr.getTheDateStr(day_str)
+        day_str = StrTool.get_the_date_str(day_str)
         myLog.Log('单日文件下载开始' + day_str)
         # 设置默认值
 
@@ -105,9 +105,9 @@ class Sftp_Worker:
             from_dir = self.remoteDir
         if type(to_dir) is not str or len(to_dir) == 0:
             to_dir = self.localDir
-        day_str = datestr.getTheDateStr(day_str)
+        day_str = StrTool.get_the_date_str(day_str)
         myLog.Log('批量下载文件开始')
-        date1 = datestr.getTheDate(day_str)
+        date1 = StrTool.get_the_date(day_str)
         # 设置默认值
 
         for i in range(0, days):
@@ -126,7 +126,7 @@ class Sftp_Worker:
             return
         if type(from_dir) is not str or len(from_dir) == 0:
             from_dir = self.localDir
-        day_str = datestr.getTheDateStr(day_str)
+        day_str = StrTool.get_the_date_str(day_str)
         myLog.Log('单日文件复制开始 ' + day_str)
         # 检查默认值
 
@@ -144,8 +144,8 @@ class Sftp_Worker:
             return
         if type(from_dir) is not str or len(from_dir) == 0:
             from_dir = self.localDir
-        day_str = datestr.getTheDateStr(day_str)
-        date1 = datestr.getTheDate(day_str)
+        day_str = StrTool.get_the_date_str(day_str)
+        date1 = StrTool.get_the_date(day_str)
         # 检查默认值
 
         myLog.Log('批量复制文件开始')
@@ -158,8 +158,8 @@ class Sftp_Worker:
         myLog.Log('批量复制文件结束')
 
     def cleanFilesByDay(self, day_str: str=''):
-        day_str = datestr.getTheDateStr(day_str)
-        thedate = datestr.getTheDate(day_str)
+        day_str = StrTool.get_the_date_str(day_str)
+        thedate = StrTool.get_the_date(day_str)
         myLog.Log(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ' 文件清洗开始:clean、rename、append ' + day_str)
 
         dataClean.dataCleanTrustApply(day_str)
@@ -169,8 +169,8 @@ class Sftp_Worker:
         myLog.Log(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ' 文件清洗结束 ' + day_str)
 
     def cleanFilesByRange(self, day_str: str='', days: int=1):
-        day_str = datestr.getTheDateStr(day_str)
-        date1 = datestr.getTheDate(day_str)
+        day_str = StrTool.get_the_date_str(day_str)
+        date1 = StrTool.get_the_date(day_str)
 
         myLog.Log('批量文件清洗开始')
 
@@ -182,7 +182,7 @@ class Sftp_Worker:
         myLog.Log('批量文件清洗结束')
 
     def cleanFilePermission(self):
-        fileList = myLocalFile.getchild(dataClean.aimPath)
+        fileList = myLocalFile.get_child(dataClean.aimPath)
         for aFile in fileList:
             os.chmod(aFile, stat.S_IWOTH + stat.S_IROTH + stat.S_IWGRP + stat.S_IRGRP + stat.S_IWUSR + stat.S_IRUSR)
 

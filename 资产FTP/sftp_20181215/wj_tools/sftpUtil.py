@@ -5,6 +5,7 @@ import paramiko
 import os
 import stat
 
+
 # 获取连接
 def getConnect(host, port, username, password):
     """
@@ -130,6 +131,7 @@ def upload(handle, remoteRelDir, localPath):
     return result
     # handle.close()
 
+
 # 上传指定文件夹下的所有
 def uploadDir(sftp, remoteRelDir, localAbsDir):
     """
@@ -141,7 +143,7 @@ def uploadDir(sftp, remoteRelDir, localAbsDir):
     print("start upload dir by use SFTP...")
     result = [1, ""]
     try:
-        for root,dirs,files in os.walk(localAbsDir):
+        for root, dirs, files in os.walk(localAbsDir):
             if len(files) > 0:
                 for fileName in files:
                     localAbsPath = formatPath(localAbsDir, fileName)
@@ -207,7 +209,7 @@ def lastDir(path):
         return paths[-2]
     else:
         return ""
-        
+
 
 # 格式化路径或拼接路径并格式化
 def formatPath(path, *paths):
