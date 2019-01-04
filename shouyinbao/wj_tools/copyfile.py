@@ -1,7 +1,7 @@
 #!coding:utf-8
 import os
 import pathlib
-from wj_tools.file_check import myLocalFile
+from wj_tools.file_check import MyLocalFile
 # data path config file
 from conf import ConfigData as cf
 import datetime
@@ -42,20 +42,20 @@ def runCopyFile(isBaoli=True):
 
     print("Start\n")
 
-    branchs = myLocalFile.get_child(root_path)
+    branchs = MyLocalFile.get_child(root_path)
     for aBranch in branchs:
-        if myLocalFile.check_branch(aBranch):
-            monthes = myLocalFile.get_child(aBranch)
+        if MyLocalFile.check_branch(aBranch):
+            monthes = MyLocalFile.get_child(aBranch)
             for aMonth in monthes:
-                theMonth = myLocalFile.check_month(aMonth)
+                theMonth = MyLocalFile.check_month(aMonth)
                 if theMonth > 0:
-                    days = myLocalFile.get_child(aMonth)
+                    days = MyLocalFile.get_child(aMonth)
                     for aDay in days:
-                        theDay = myLocalFile.check_day(aDay)
+                        theDay = MyLocalFile.check_day(aDay)
                         if theDay > 0:
-                            files = myLocalFile.get_child(aDay)
+                            files = MyLocalFile.get_child(aDay)
                             for aFile in files:
-                                if myLocalFile.check_file(aFile, start=filepre, ext=fileext):
+                                if MyLocalFile.check_file(aFile, start=filepre, ext=fileext):
                                     copyTheFile(destdir, aBranch, theMonth, theDay, aFile, 1)
 
 

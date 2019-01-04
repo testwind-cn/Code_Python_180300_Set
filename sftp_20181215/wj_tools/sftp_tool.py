@@ -3,7 +3,7 @@
 # from wj_tools import sftp_config
 from wj_tools import sftpUtil
 from wj_tools.mylog import myLog
-from wj_tools.file_check import myLocalFile
+from wj_tools.file_check import MyLocalFile
 from wj_tools.str_tool import StrTool
 import paramiko
 import os,stat,shutil
@@ -204,7 +204,7 @@ class Sftp_Tool:
                     shortname = f.filename
                     v1, d1 = self.__checkFileInList(shortname, fileNames, default=and_op)
                     v2, d2 = self.__checkStartEndTime(f.st_mtime, sdate, edate, default=and_op)
-                    v3, d3 = myLocalFile.check_name(shortname, start, ext, fstr, default=and_op)
+                    v3, d3 = MyLocalFile.check_name(shortname, start, ext, fstr, default=and_op)
                     if and_op:
                         if v1 and v2 and v3:
                             retFiles.append(f)
@@ -248,7 +248,7 @@ class Sftp_Tool:
         if type(localdir) is not str or len(localdir) == 0:
             localdir = self.__m_localDir
         try:
-            listFiles = myLocalFile.get_child(localdir)
+            listFiles = MyLocalFile.get_child(localdir)
             if len(listFiles) > 0:
                 for f in listFiles:
                     st = os.stat(f)
@@ -257,7 +257,7 @@ class Sftp_Tool:
                     shortname = os.path.basename(f)
                     v1, d1 = self.__checkFileInList(shortname, fileNames, default=and_op)
                     v2, d2 = self.__checkStartEndTime(st.st_mtime, sdate, edate, default=and_op)
-                    v3, d3 = myLocalFile.check_name(shortname, start, ext, fstr, default=and_op)
+                    v3, d3 = MyLocalFile.check_name(shortname, start, ext, fstr, default=and_op)
                     if and_op:
                         if v1 and v2 and v3:
                             retFiles.append(f)
@@ -306,7 +306,7 @@ class Sftp_Tool:
                     isdownloaded = True
 
             if not isdownloaded:
-                myLocalFile.safe_make_dir(to_dir, stat.S_IRWXO + stat.S_IRWXG + stat.S_IRWXU)
+                MyLocalFile.safe_make_dir(to_dir, stat.S_IRWXO + stat.S_IRWXG + stat.S_IRWXU)
 
                 try:
                     srcFile = srcFile.replace('\\', '/')
@@ -357,7 +357,7 @@ class Sftp_Tool:
                     isdownloaded = True
 
             if not isdownloaded:
-                myLocalFile.safe_make_dir(toDir, stat.S_IRWXO + stat.S_IRWXG + stat.S_IRWXU)
+                MyLocalFile.safe_make_dir(toDir, stat.S_IRWXO + stat.S_IRWXG + stat.S_IRWXU)
                 try:
                     shutil.copyfile(fromFile, toFile)
                     # 修改访问和修改时间

@@ -5,7 +5,7 @@ import os, stat
 import time
 import datetime
 import dataClean
-from wj_tools.file_check import myLocalFile
+from wj_tools.file_check import MyLocalFile
 from wj_tools.str_tool import StrTool
 
 
@@ -182,7 +182,24 @@ class Sftp_Worker:
         myLog.Log('批量文件清洗结束')
 
     def cleanFilePermission(self):
-        fileList = myLocalFile.get_child(dataClean.aimPath)
+        fileList = MyLocalFile.get_child(dataClean.aimPath)
         for aFile in fileList:
             os.chmod(aFile, stat.S_IWOTH + stat.S_IROTH + stat.S_IWGRP + stat.S_IRGRP + stat.S_IWUSR + stat.S_IRUSR)
+
+
+    def removeFiles(self,deleteDay:str):
+        if fileName.find(deleteDay) >= 0:
+            myLog.Log('预删除 ' + fileName)
+            sftp.remove(sftp_config.homeDir + fileName)
+            logging.info('成功删除 ' + fileName)
+
+            if self.__theSftp is None:
+                return
+            if type(from_dir) is not str or len(from_dir) == 0:
+                from_dir = self.remoteDir
+            if type(to_dir) is not str or len(to_dir) == 0:
+                to_dir = self.localDir
+            day_str = StrTool.get_the_date_str(day_str)
+            myLog.Log('批量下载文件开始')
+            date1 = StrTool.get_the_date(day_str)
 

@@ -1,14 +1,14 @@
 #!coding:utf-8
-import sys
-import os, stat
+# import sys
+import os
 import pathlib
 import zipfile
-import platform
+# import platform
 from wj_tools.mylog import myLog
 from hdfs.client import Client
 
 
-class myLocalFile:
+class MyLocalFile:
 
     @staticmethod
     def safe_make_dir(dir_str: str, mode: int = 0) -> object:
@@ -89,7 +89,7 @@ class myLocalFile:
     @staticmethod
     def check_file(path, start: str= "", ext: str= "", fstr: str= '', default: bool=True):
         name = os.path.basename(path)
-        v, d = myLocalFile.check_name(name, start, ext, fstr, default)
+        v, d = MyLocalFile.check_name(name, start, ext, fstr, default)
         if not v:
             return False
         elif os.path.isfile(path):
@@ -146,7 +146,7 @@ class myLocalFile:
             pathlib.Path(newpath).mkdir(parents=True, exist_ok=True)
         for names in zip_file.namelist():
             # if names.lower().startswith(cF.filepre1().lower()):  #'t1_trxrecord'
-            v, d = myLocalFile.check_name(names, start, ext, fstr, default)
+            v, d = MyLocalFile.check_name(names, start, ext, fstr, default)
             if v:
                 zip_file.extract(names, newpath)
         zip_file.close()
@@ -192,14 +192,14 @@ class MyHdfsFile:
         if the_dir is None:
             return False
         else:
-            if (f_type & 1) > 0 and the_dir['f_type'].lower() == 'file':
+            if (f_type & 1) > 0 and the_dir['type'].lower() == 'file':
                 return True
-            if (f_type & 2) > 0 and the_dir['f_type'].lower() == 'directory':
+            if (f_type & 2) > 0 and the_dir['type'].lower() == 'directory':
                 return True
         return False
 
     @staticmethod
-    def isfile(client: Client,path):
+    def isfile(client: Client, path):
         return MyHdfsFile.is_exist(client, path, 1)
 
     @staticmethod
@@ -255,17 +255,17 @@ class MyHdfsFile:
 
     @staticmethod
     def safe_make_dir(client: Client, to_file):
-        p = pathlib.Path(to_file).parents
-        if type(p) == pathlib._PathParents and len(p._parts) >= 2:
-            thePath = p._parts[0]
-            for i in range(1, len(p._parts) - 1):
-                thePath = os.path.join(thePath, p._parts[i])
-                theDir = client.status(thePath, strict=False)
-                if theDir is None:
-                    client.makedirs(thePath, permission=777)
+        p = pathlib.PurePath(to_file)  # pathlib.Path(to_file).parents
+        if len(p.parts) >= 2:  # type(p) == pathlib._PathParents and
+            the_path = p.parts[0]
+            for i in range(1, len(p.parts) - 1):
+                the_path = os.path.join(the_path, p.parts[i])
+                the_dir = client.status(the_path, strict=False)
+                if the_dir is None:
+                    client.makedirs(the_path, permission=777)
                 #                client.set_owner(thePath,owner='hdfs',group='supergroup')
                 else:
-                    if theDir['type'].lower() == 'directory':
+                    if the_dir['type'].lower() == 'directory':
                         pass
                     else:
                         return

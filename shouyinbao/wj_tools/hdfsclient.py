@@ -24,6 +24,9 @@ from hdfs.client import _map_async
 
 class MyClient(Client):
 
+    def __init__(self, url, root=None, proxy=None, timeout=None, session=None):
+        super().__init__(url, root, proxy, timeout, session)
+
     def newupload(self, hdfs_path, local_path, n_threads=1, temp_dir=None,
                chunk_size=2 ** 16, progress=None, cleanup=True, **kwargs):
         """Upload a file or directory to HDFS.

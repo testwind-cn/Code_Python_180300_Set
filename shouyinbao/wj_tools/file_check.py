@@ -1,14 +1,16 @@
 #!coding:utf-8
-import sys
-import os, stat
+# import sys
+import os
+import fnmatch
+import paramiko
 import pathlib
 import zipfile
-import platform
+# import platform
 from wj_tools.mylog import myLog
 from hdfs.client import Client
 
 
-class myLocalFile:
+class MyLocalFile:
 
     @staticmethod
     def safe_make_dir(dir_str: str, mode: int = 0) -> object:
@@ -29,7 +31,7 @@ class myLocalFile:
         return
 
     @staticmethod
-    def is_exist(path, f_type=3):  # 1 file , 2 dir, 3 any
+    def is_exist(path: str, f_type: int=3):  # 1 file , 2 dir, 3 any
         if (f_type & 1) > 0 and os.path.isfile(path):
             return True
         if (f_type & 2) > 0 and os.path.isdir(path):
@@ -37,15 +39,15 @@ class myLocalFile:
         return False
 
     @staticmethod
-    def isfile(path):
+    def isfile(path: str):
         return os.path.isfile(path)
 
     @staticmethod
-    def isdir(path):
+    def isdir(path: str):
         return os.path.isdir(path)
 
     @staticmethod
-    def check_name(name, start: str= "", ext: str= "", fstr: str= '', default: bool=True):
+    def check_name(name: str, start: str= "", ext: str= "", fstr: str= '', default: bool=True):
         """
 
         :param name:
@@ -87,9 +89,9 @@ class myLocalFile:
         return False, False
 
     @staticmethod
-    def check_file(path, start: str= "", ext: str= "", fstr: str= '', default: bool=True):
+    def check_file(path: str, start: str= "", ext: str= "", fstr: str= '', default: bool=True):
         name = os.path.basename(path)
-        v, d = myLocalFile.check_name(name, start, ext, fstr, default)
+        v, d = MyLocalFile.check_name(name, start, ext, fstr, default)
         if not v:
             return False
         elif os.path.isfile(path):
@@ -98,46 +100,61 @@ class myLocalFile:
             return False
 
     @staticmethod
-    def get_child(path):
+    def get_child(path: str, f_type: int=3):  # 1 file , 2 dir, 3 any
         # os.listdir()  方法用于返回指定的文件夹包含的文件或文件夹的名字的列表。这个列表以字母顺序。 它不包括 '.' 和 '..' 即使它在文件夹中。只支持在 Unix, Windows 下使用。
         # http://www.runoob.com/python/os-listdir.html
         a_list = []
         path = os.path.expanduser(path)
-        isdir = os.path.isdir(path)
-        if isdir:
+        is_dir = os.path.isdir(path)
+        if is_dir:
             names = os.listdir(path)
             for a_name in names:
-                a_list.append(os.path.join(path, a_name))
+                a_file = os.path.join(path, a_name)
+                if f_type == 3:
+                    a_list.append(a_file)
+                elif MyLocalFile.is_exist(a_file, f_type=f_type):
+                    a_list.append(a_file)
+
         return a_list
 
     @staticmethod
-    def check_branch(path):
+    def get_child_file(path: str):
+        a_list = MyLocalFile.get_child(path, f_type=1)
+        return a_list
+
+    @staticmethod
+    def get_child_dir(path: str):
+        a_list = MyLocalFile.get_child(path, f_type=2)
+        return a_list
+
+    @staticmethod
+    def check_branch(path: str):
         short_name = os.path.basename(path)
-        isdir = os.path.isdir(path)
-        if isdir and len(short_name) == 10:
+        is_dir = os.path.isdir(path)
+        if is_dir and len(short_name) == 10:
             return True
         return False
 
     @staticmethod
-    def check_month(path):
+    def check_month(path: str):
         short_name = os.path.basename(path)
-        isdir = os.path.isdir(path)
-        if isdir and len(short_name) == 6:
+        is_dir = os.path.isdir(path)
+        if is_dir and len(short_name) == 6:
             if short_name.isdecimal():
                 return int(short_name)
         return -1
 
     @staticmethod
-    def check_day(path):
+    def check_day(path: str):
         short_name = os.path.basename(path)
-        isdir = os.path.isdir(path)
-        if isdir and len(short_name) == 2:
+        is_dir = os.path.isdir(path)
+        if is_dir and len(short_name) == 2:
             if short_name.isdecimal():
                 return int(short_name)
         return -1
 
     @staticmethod
-    def unzip_the_file(file, newpath, start: str= "", ext: str= "", fstr: str= '', default: bool=True):
+    def unzip_the_file(file: str, newpath: str, start: str= "", ext: str= "", fstr: str= '', default: bool=True):
         # unzip zip file , foldertype = 1 : # 9999900000/201811/01 # 9999900000/20181101
         zip_file = zipfile.ZipFile(file)
         if os.path.isfile(newpath):
@@ -146,7 +163,7 @@ class myLocalFile:
             pathlib.Path(newpath).mkdir(parents=True, exist_ok=True)
         for names in zip_file.namelist():
             # if names.lower().startswith(cF.filepre1().lower()):  #'t1_trxrecord'
-            v, d = myLocalFile.check_name(names, start, ext, fstr, default)
+            v, d = MyLocalFile.check_name(names, start, ext, fstr, default)
             if v:
                 zip_file.extract(names, newpath)
         zip_file.close()
@@ -187,7 +204,7 @@ class myLocalFile:
 
 class MyHdfsFile:
     @staticmethod
-    def is_exist(client: Client, path, f_type=3):  # 1 file , 2 dir, 3 any
+    def is_exist(client: Client, path: str, f_type: int=3):  # 1 file , 2 dir, 3 any
         the_dir = client.status(path, strict=False)
         if the_dir is None:
             return False
@@ -199,80 +216,155 @@ class MyHdfsFile:
         return False
 
     @staticmethod
-    def isfile(client: Client,path):
+    def isfile(client: Client, path: str):
         return MyHdfsFile.is_exist(client, path, 1)
 
     @staticmethod
-    def isdir(client: Client, path):
+    def isdir(client: Client, path: str):
         return MyHdfsFile.is_exist(client, path, 2)
 
     @staticmethod
-    def check_file(client: Client, path, start="", ext=""):
-        short_name = os.path.basename(path)
-        isfile = MyHdfsFile.isfile(client, path)
-        if isfile:
+    def check_file(client: Client, path: str, start: str="", ext: str=""):
+        short_name = pathlib.PurePosixPath(path).name
+        is_file = MyHdfsFile.isfile(client, path)
+        if is_file:
             if (len(start) == 0 or short_name.lower().startswith(start.lower())) and \
                     (len(ext) == 0 or short_name.lower().endswith(ext.lower())):
                 return True
         return False
 
     @staticmethod
-    def get_child(client: Client, path):
+    def get_child(client: Client, path: str, f_type: int=3):  # 1 file , 2 dir, 3 any
         a_list = []
-        path = os.path.expanduser(path)
-        isdir = MyHdfsFile.isdir(client, path)
-        if isdir:
+        # path = str(pathlib.PosixPath(path).expanduser())
+        is_dir = MyHdfsFile.isdir(client, path)
+        if is_dir:
             names = client.list(path)
             for a_name in names:
-                a_list.append(os.path.join(path, a_name))
+                a_file = str(pathlib.PurePosixPath(path).joinpath(a_name))
+                if f_type == 3:
+                    a_list.append(a_file)
+                elif MyHdfsFile.is_exist(client, a_file, f_type=f_type):
+                    a_list.append(a_file)
         return a_list
 
     @staticmethod
-    def check_branch(client: Client, path):
-        short_name = os.path.basename(path)
-        isdir = MyHdfsFile.isdir(client, path)
-        if isdir and len(short_name) == 10:
+    def get_child_file(client: Client, path: str):
+        a_list = MyHdfsFile.get_child(client, path, f_type=1)
+        return a_list
+
+    @staticmethod
+    def get_child_dir(client: Client, path: str):
+        a_list = MyHdfsFile.get_child(client, path, f_type=2)
+        return a_list
+
+    @staticmethod
+    def delete(client: Client, path: str, p_name: str):
+        # a_list = MyHdfsFile.get_child_file(client, path)
+        # for a_name in a_list:
+        #     a_file = pathlib.PurePosixPath(a_name).name
+        #     if fnmatch.fnmatch(a_file, p_name):
+        #         client.delete(a_name, recursive=True)
+
+        # import ssh
+        # 新建一个ssh客户端对象
+        # ssh_client = ssh.SSHClient()
+        # # 设置成默认自动接受密钥
+        # ssh_client.set_missing_host_key_policy(ssh.AutoAddPolicy())
+        # # 连接远程主机
+        # ssh_client.connect("10.91.1.20", port=22, username="root", password="Redhat@2016")
+        # # 在远程机执行shell命令
+        # stdin, stdout, stderr = client.exec_command("ls -l")
+        # # 读返回结果
+        # print(stdout.read())
+        # del_cmd = "hadoop dfs -rm -r -skipTrash " + str(pathlib.PurePosixPath(path).joinpath(p_name))
+        # stdin, stdout, stderr = client.exec_command(del_cmd)
+        # print(stdout.read())
+
+        # import paramiko
+        ssh_client = paramiko.SSHClient()
+        ssh_client.load_system_host_keys()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())  #paramiko.WarningPolicy()
+        ssh_client.connect("10.91.1.20", port=22, username="root", password="Redhat@2016")
+        # paramiko.SSHClient().exec_command() 可以执行一条命令；当执行多条命令时，多条命令放在一个单引号下面，各命令之间用分号隔开，且在末尾加上get_pty = True。
+        # 在command命令最后加上 get_pty=True，执行多条命令 的话用；隔开，另外所有命令都在一个大的单引号范围内引用
+        del_cmd = 'hadoop dfs -rm -r -skipTrash ' + str(pathlib.PurePosixPath(path).joinpath(p_name))
+        # 'hadoop dfs -ls /user/hive/warehouse/posflow.db/t1_trxrecprd_v2'
+        # del_cmd = 'hadoop dfs -ls /user/hive/warehouse/posflow.db/t1_trxrecprd_v2'
+        # stdin, stdout, stderr = ssh_client.exec_command(command='su hdfs;'+del_cmd, get_pty=True)
+        stdin, stdout, stderr = ssh_client.exec_command(command='su hdfs -c \''+del_cmd+'\'', get_pty=True)
+        for line in stdout:
+            print(line.strip('\n'))
+        ssh_client.close()
+
+        # channel = ssh_client.invoke_shell()
+        # stdin = channel.makefile('wb')
+        # stdout = channel.makefile('rb')
+        # #stdin.write("su hdfs \n"+del_cmd+"\n"+"exit\n")
+        # stdin.write("su hdfs \n" + "ls" + "\n" + "exit\nEOF")
+        # stdin.close()
+        # print(stdout.read())
+        # stdout.close()
+
+
+
+        # for line in stdout:
+        #     print(line.strip('\n'))
+        #
+        # err = stderr.readlines()
+        # if err:
+        #     print(err)
+        # ssh_client.close()
+
+
+    @staticmethod
+    def check_branch(client: Client, path: str):
+        short_name = pathlib.PurePosixPath(path).name
+        is_dir = MyHdfsFile.isdir(client, path)
+        if is_dir and len(short_name) == 10:
             return True
         return False
 
     @staticmethod
-    def check_month(client: Client, path):
-        short_name = os.path.basename(path)
-        isdir = MyHdfsFile.isdir(client, path)
-        if isdir and len(short_name) == 6:
+    def check_month(client: Client, path: str):
+        short_name = pathlib.PurePosixPath(path).name
+        is_dir = MyHdfsFile.isdir(client, path)
+        if is_dir and len(short_name) == 6:
             if short_name.isdecimal():
                 return int(short_name)
         return -1
 
     @staticmethod
-    def check_day(client: Client, path):
-        short_name = os.path.basename(path)
-        isdir = MyHdfsFile.isdir(client, path)
-        if isdir and len(short_name) == 2:
+    def check_day(client: Client, path: str):
+        short_name = pathlib.PurePosixPath(path).name
+        is_dir = MyHdfsFile.isdir(client, path)
+        if is_dir and len(short_name) == 2:
             if short_name.isdecimal():
                 return int(short_name)
         return -1
 
     @staticmethod
-    def safe_make_dir(client: Client, to_file):
-        p = pathlib.Path(to_file).parents
-        if type(p) == pathlib._PathParents and len(p._parts) >= 2:
-            thePath = p._parts[0]
-            for i in range(1, len(p._parts) - 1):
-                thePath = os.path.join(thePath, p._parts[i])
-                theDir = client.status(thePath, strict=False)
-                if theDir is None:
-                    client.makedirs(thePath, permission=777)
+    def safe_make_dir(client: Client, to_file: str):
+        p = pathlib.PurePosixPath(to_file)  # pathlib.Path(to_file).parents
+        if len(p.parts) >= 2:  # type(p) == pathlib._PathParents and
+            the_path = p.parts[0]
+            for i in range(1, len(p.parts) - 1):
+                the_path = pathlib.PurePosixPath(the_path).joinpath(pathlib.PurePosixPath(p.parts[i]))
+                the_path_str = str(the_path)
+                # os.path.join(the_path, p.parts[i])
+                the_dir = client.status(the_path_str, strict=False)
+                if the_dir is None:
+                    client.makedirs(the_path_str, permission=777)
                 #                client.set_owner(thePath,owner='hdfs',group='supergroup')
                 else:
-                    if theDir['type'].lower() == 'directory':
+                    if the_dir['type'].lower() == 'directory':
                         pass
                     else:
                         return
         return
 
     @staticmethod
-    def conv_file_hdfs(from_file, to_file, client: Client):
+    def conv_file_hdfs(from_file: str, to_file: str, client: Client):
         if not os.path.isfile(from_file):
             return
         # newpath = os.path.dirname(to_file)
@@ -298,7 +390,7 @@ class MyHdfsFile:
         print("ok")
 
     @staticmethod
-    def test(to_file, client: Client):
+    def test(to_file: str, client: Client):
         return
 
 
