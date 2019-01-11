@@ -91,7 +91,7 @@ class Sftp_Worker:
         # 设置默认值
 
         self.__theSftp.download_files(from_dir=from_dir, to_dir=os.path.join(to_dir, day_str),
-                                      start='', ext='', fstr=day_str,
+                                      p_name="*"+day_str+"*",
                                       sdate=day_str, edate=day_str,
                                       file_names=file_names, and_op=False)
 
@@ -114,7 +114,7 @@ class Sftp_Worker:
             date2 = date1 - datetime.timedelta(days=(days - i - 1))
             day_str2 = date2.strftime("%Y%m%d")
             self.__theSftp.download_files(from_dir=from_dir, to_dir=os.path.join(to_dir, day_str2),
-                                          start='', ext='', fstr=day_str2,
+                                          p_name="*"+day_str2+"*",
                                           sdate=day_str2, edate=day_str2,
                                           file_names=[], and_op=False)
 
@@ -135,7 +135,7 @@ class Sftp_Worker:
             for fileName in file_names:
                 searchFileNames.append(fileName + day_str + '.csv')
 
-        self.__theSftp.copy_files(fromDir=os.path.join(from_dir, day_str), toDir=to_dir, start='', ext='', fstr='',
+        self.__theSftp.copy_files(fromDir=os.path.join(from_dir, day_str), toDir=to_dir, p_name='',
                                   sdate='', edate='', fileNames=searchFileNames, and_op=False)
 
     def copyFilesByRange(self, to_dir: str, day_str: str='', days: int=1, file_names: list=[], from_dir: str= ''):

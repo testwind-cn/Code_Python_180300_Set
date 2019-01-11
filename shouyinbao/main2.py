@@ -1,6 +1,7 @@
 #!coding:utf-8
 
 import os
+import shutil
 import pathlib
 import datetime
 from hdfs.client import Client
@@ -28,20 +29,20 @@ def run_unzip_file(conf: ConfigData, the_date: str):
 
     #    ifile = '/home/testFolder/logflow/bl_shouyinbao/20181101/9999100000/t1_trxrecord_20181101_V2.csv'
     #    ofile = '/home/testFolder/logflow/bl_shouyinbao/UTF8/20181101/9999100000/t1_trxrecord_20181101_V2.csv'
-    filepre = conf.file_pre1()  # "t1_trxrecord_"
-    fileext = conf.file_ext1()  # "_v2.zip"
 
     print("Start\n")
 
     # os.path.join(root_path, the_date) # real SYB folder don't have date folder
 
-    a_file = os.path.join(root_path, the_date+".zip")
-    if MyLocalFile.check_file(a_file, start="", ext=""):
-        MyLocalFile.unzip_the_file(a_file, destdir, fstr=the_date)
+    f_name = conf.get_zip_name(the_date, 3)  # the_date+".zip"
+    a_file = os.path.join(root_path, f_name)
+    if MyLocalFile.check_file(a_file):
+        MyLocalFile.unzip_the_file(a_file, destdir, p_name=the_date+"*")
 
-    a_file = os.path.join(root_path, the_date+"_agt.zip")
-    if MyLocalFile.check_file(a_file, start="", ext=""):
-        MyLocalFile.unzip_the_file(a_file, destdir, fstr=the_date)
+    f_name = conf.get_zip_name(the_date,5)   # the_date+"_agt.zip"
+    a_file = os.path.join(root_path, f_name)
+    if MyLocalFile.check_file(a_file):
+        MyLocalFile.unzip_the_file(a_file, destdir,  p_name=the_date+"*")
 
 
 def run_sftp_file(conf: ConfigData, the_date: str):
@@ -57,7 +58,7 @@ def run_sftp_file(conf: ConfigData, the_date: str):
                             r=conf.get_data("allinpay_ftp_folder_zc"), d=conf.get_data("allinpay_data_zc"))
     a.openSFTP()
     a.download_files(from_dir=conf.get_data("allinpay_ftp_folder_zc"),
-                     to_dir=conf.get_data("allinpay_data_zc"), fstr=the_date)
+                     to_dir=conf.get_data("allinpay_data_zc"), p_name=the_date+"*.zip")
 
 
 def run_conv_file_local_to_hdfs(conf: ConfigData, the_date: str):
@@ -133,13 +134,31 @@ def run_hive(conf: ConfigData, the_date: str):
     conn.close()
 
 
+def run_remove_files(conf: ConfigData, the_date: str, delta_day=0):
+    sdate = StrTool.get_the_date_str(the_date, delta_day)  # "20181101"
+    data_path = os.path.join(conf.get_data_path(1), sdate)
+    utf8_path = os.path.join(conf.get_utf8_path(1), sdate)
+    hdfs_path = str(pathlib.PurePosixPath(conf.get_hdfs_path()).joinpath(sdate))
+    shutil.rmtree(data_path, ignore_errors=True)
+    shutil.rmtree(utf8_path, ignore_errors=True)
+    client = MyClient(conf.hdfs_ip())  # "http://10.2.201.197:50070"
+    client.delete(hdfs_path, recursive=True)
+    # "/user/hive/warehouse/posflow.db/t1_trxrecprd_v2/t1_trxrecord_20181204_V2*.csv"
+    # hive_table="posflow.t1_trxrecprd_v2",
+    # file_pre1 = 't1_trxrecord_',
+    # file_ext2 = "_V2.csv",
+
 if __name__ == "__main__":
-    the_conf = ConfigData(is_test=False)
+    the_conf = ConfigData(p_is_test=False)
 
     client = Client(the_conf.hdfs_ip())  # "http://10.2.201.197:50070"
     a = MyHdfsFile.get_child(client, "/data/posflow/allinpay_utf8_zc")
     b = MyHdfsFile.get_child_file(client,"/data/posflow/allinpay_utf8_zc")
     c = MyHdfsFile.get_child_dir(client, "/data/posflow/allinpay_utf8_zc")
+
+    # test
+    # MyHdfsFile.delete(client, "/data/posflow/allinpay_utf8_zc", "*agt_cpy*")
+    # test
 
     if the_conf.is_test():
         day_str = the_conf.test_date()
@@ -159,5 +178,6 @@ if __name__ == "__main__":
         run_unzip_file(the_conf, day_str2)
         run_conv_file_local_to_hdfs(the_conf, day_str2)
         run_hive(the_conf, the_date=day_str2)
+        run_remove_files(the_conf, day_str2, 0)
 
     print("ok")

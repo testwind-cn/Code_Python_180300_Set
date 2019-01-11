@@ -161,7 +161,7 @@ class Sftp_Tool:
         else:
             return False, False
 
-    def getRmFilesList(self, rmdir: str, start: str= '', ext: str= '', fstr: str= '', sdate: str= '', edate: str= '',
+    def getRmFilesList(self, rmdir: str, p_name: str= '', sdate: str= '', edate: str= '',
                        fileNames: list=[], and_op: bool=True):
         """###  需要调整!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -180,9 +180,7 @@ class Sftp_Tool:
         # ( not checkname and not __getStartEndTime or not __checkFileInList )
 
         :param rmdir:
-        :param start:
-        :param ext:
-        :param fstr:
+        :param p_name:
         :param sdate:
         :param edate:
         :param fileNames:
@@ -204,7 +202,7 @@ class Sftp_Tool:
                     shortname = f.filename
                     v1, d1 = self.__checkFileInList(shortname, fileNames, default=and_op)
                     v2, d2 = self.__checkStartEndTime(f.st_mtime, sdate, edate, default=and_op)
-                    v3, d3 = MyLocalFile.check_name(shortname, start, ext, fstr, default=and_op)
+                    v3, d3 = MyLocalFile.check_name(shortname, p_name, default=and_op)
                     if and_op:
                         if v1 and v2 and v3:
                             retFiles.append(f)
@@ -217,7 +215,7 @@ class Sftp_Tool:
         return retFiles
 
 
-    def getLcFilesList(self, localdir: str, start: str= '', ext: str= '', fstr: str= '', sdate: str= '', edate: str= '',
+    def getLcFilesList(self, localdir: str, p_name: str= '', sdate: str= '', edate: str= '',
                        fileNames: list=[], and_op: bool=True):
         """###  需要调整!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -236,8 +234,7 @@ class Sftp_Tool:
         # ( not checkname and not __getStartEndTime or not __checkFileInList )
 
         :param localdir:
-        :param start:
-        :param ext:
+        :param p_name:
         :param sdate:
         :param edate:
         :param fileNames:
@@ -257,7 +254,7 @@ class Sftp_Tool:
                     shortname = os.path.basename(f)
                     v1, d1 = self.__checkFileInList(shortname, fileNames, default=and_op)
                     v2, d2 = self.__checkStartEndTime(st.st_mtime, sdate, edate, default=and_op)
-                    v3, d3 = MyLocalFile.check_name(shortname, start, ext, fstr, default=and_op)
+                    v3, d3 = MyLocalFile.check_name(shortname, p_name, default=and_op)
                     if and_op:
                         if v1 and v2 and v3:
                             retFiles.append(f)
@@ -269,7 +266,7 @@ class Sftp_Tool:
             # traceback.print_exc()
         return retFiles
 
-    def download_files(self, from_dir='', to_dir='', start: str= '', ext: str= '', fstr: str= '',
+    def download_files(self, from_dir='', to_dir='', p_name: str= '',
                        sdate: str= '', edate: str= '', file_names: list=[], and_op: bool=True):
         # 设置默认值
         if not isinstance(self.__theSftp, paramiko.SFTPClient):
@@ -282,7 +279,7 @@ class Sftp_Tool:
         myLog.Log('文件下载开始 from:' + from_dir + ' to: ' + to_dir)
         # 设置默认值
 
-        fileList = self.getRmFilesList(from_dir, start, ext, fstr, sdate, edate, file_names, and_op)  # 只处理列表中的文件
+        fileList = self.getRmFilesList(from_dir, p_name, sdate, edate, file_names, and_op)  # 只处理列表中的文件
 
         for fromFile in fileList:
             shortname = fromFile.filename   # fromFile.filename        # fromFile.st_atime        # fromFile.st_mtime
@@ -325,7 +322,7 @@ class Sftp_Tool:
 
         myLog.Log('文件下载结束 from:' + from_dir + ' to: ' + to_dir)
 
-    def copy_files(self, fromDir='', toDir='', start: str= '', ext: str= '', fstr: str= '',
+    def copy_files(self, fromDir='', toDir='', p_name: str= '',
                    sdate: str= '', edate: str= '', fileNames: list=[], and_op: bool=True):
         # 设置默认值
         if type(fromDir) is not str or len(fromDir) <= 0:
@@ -336,7 +333,7 @@ class Sftp_Tool:
         myLog.Log('纯文件复制开始 from:' + fromDir + ' to: ' + toDir)
         # 设置默认值
 
-        fileList = self.getLcFilesList(fromDir, start, ext, fstr, sdate, edate, fileNames, and_op)  # 只处理列表中的文件
+        fileList = self.getLcFilesList(fromDir, p_name, sdate, edate, fileNames, and_op)  # 只处理列表中的文件
 
         for fromFile in fileList:
             if os.path.isfile(fromFile):

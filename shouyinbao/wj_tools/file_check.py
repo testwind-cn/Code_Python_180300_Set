@@ -47,51 +47,65 @@ class MyLocalFile:
         return os.path.isdir(path)
 
     @staticmethod
-    def check_name(name: str, start: str= "", ext: str= "", fstr: str= '', default: bool=True):
+    def check_name(name: str, p_name: str= '', default: bool=True):
         """
 
         :param name:
-        :param start:
-        :param ext:
-        :param fstr:
+        :param p_name:
         :param default:
         :return:isIn, isDefault
         """
         if type(name) is not str or len(name) <= 0:
             return default, True
 
-        if type(start) is not str:
-            start = ""
+        if type(p_name) is not str:
+            p_name = ""
 
-        if type(ext) is not str:
-            ext = ""
-
-        if type(fstr) is not str:
-            fstr = ""
-
-        d1 = (len(start) <= 0)
-        d2 = (len(ext) <= 0)
-        d3 = (len(fstr) <= 0)
-
-        if d1 and d2 and d3:
+        d1 = (len(p_name) <= 0)
+        if d1:
             return default, True
 
-        v1 = len(start) > 0 and name.lower().startswith(start.lower())
-        v2 = len(ext) > 0 and name.lower().endswith(ext.lower())
-        v3 = len(fstr) > 0 and (name.lower().find(fstr.lower()) >= 0)
-
+        v1 = len(p_name) > 0 and fnmatch.fnmatch(name.lower(), p_name.lower())
         if default:
-            if (v1 or d1) and (v2 or d2) and (v3 or d3):
+            if v1 or d1:
                 return True, False
         else:
-            if v1 or v2 or v3:
+            if v1:
                 return True, False
         return False, False
 
+        # if type(start) is not str:
+        #     start = ""
+        #
+        # if type(ext) is not str:
+        #     ext = ""
+        #
+        # if type(fstr) is not str:
+        #     fstr = ""
+        #
+        # d1 = (len(start) <= 0)
+        # d2 = (len(ext) <= 0)
+        # d3 = (len(fstr) <= 0)
+        #
+        # if d1 and d2 and d3:
+        #     return default, True
+        #
+        # v1 = len(start) > 0 and name.lower().startswith(start.lower())
+        # v2 = len(ext) > 0 and name.lower().endswith(ext.lower())
+        # v3 = len(fstr) > 0 and (name.lower().find(fstr.lower()) >= 0)
+        #
+        # if default:
+        #     if (v1 or d1) and (v2 or d2) and (v3 or d3):
+        #         return True, False
+        # else:
+        #     if v1 or v2 or v3:
+        #         return True, False
+        # return False, False
+
     @staticmethod
-    def check_file(path: str, start: str= "", ext: str= "", fstr: str= '', default: bool=True):
+    def check_file(path: str, p_name: str= '', default: bool=True):
         name = os.path.basename(path)
-        v, d = MyLocalFile.check_name(name, start, ext, fstr, default)
+        v, d = MyLocalFile.check_name(name, p_name, default)
         if not v:
             return False
         elif os.path.isfile(path):
@@ -154,7 +168,7 @@ class MyLocalFile:
         return -1
 
     @staticmethod
-    def unzip_the_file(file: str, newpath: str, start: str= "", ext: str= "", fstr: str= '', default: bool=True):
+    def unzip_the_file(file: str, newpath: str, p_name: str= '', default: bool=True):
         # unzip zip file , foldertype = 1 : # 9999900000/201811/01 # 9999900000/20181101
         zip_file = zipfile.ZipFile(file)
         if os.path.isfile(newpath):
@@ -163,7 +177,7 @@ class MyLocalFile:
             pathlib.Path(newpath).mkdir(parents=True, exist_ok=True)
         for names in zip_file.namelist():
             # if names.lower().startswith(cF.filepre1().lower()):  #'t1_trxrecord'
-            v, d = MyLocalFile.check_name(names, start, ext, fstr, default)
+            v, d = MyLocalFile.check_name(names, p_name, default)
             if v:
                 zip_file.extract(names, newpath)
         zip_file.close()
@@ -224,14 +238,15 @@ class MyHdfsFile:
         return MyHdfsFile.is_exist(client, path, 2)
 
     @staticmethod
-    def check_file(client: Client, path: str, start: str="", ext: str=""):
+    def check_file(client: Client, path: str, p_name: str= '', default: bool=True):
         short_name = pathlib.PurePosixPath(path).name
-        is_file = MyHdfsFile.isfile(client, path)
-        if is_file:
-            if (len(start) == 0 or short_name.lower().startswith(start.lower())) and \
-                    (len(ext) == 0 or short_name.lower().endswith(ext.lower())):
-                return True
-        return False
+        v, d = MyLocalFile.check_name(short_name, p_name, default)
+        if not v:
+            return False
+        elif MyHdfsFile.isfile(client, path):
+            return True
+        else:
+            return False
 
     @staticmethod
     def get_child(client: Client, path: str, f_type: int=3):  # 1 file , 2 dir, 3 any
@@ -259,12 +274,12 @@ class MyHdfsFile:
         return a_list
 
     @staticmethod
-    def delete(client: Client, path: str, p_name: str):
-        # a_list = MyHdfsFile.get_child_file(client, path)
-        # for a_name in a_list:
-        #     a_file = pathlib.PurePosixPath(a_name).name
-        #     if fnmatch.fnmatch(a_file, p_name):
-        #         client.delete(a_name, recursive=True)
+    def delete_slow(client: Client, path: str, p_name: str):
+        a_list = MyHdfsFile.get_child_file(client, path)
+        for a_name in a_list:
+            a_file = pathlib.PurePosixPath(a_name).name
+            if fnmatch.fnmatch(a_file, p_name):
+                client.delete(a_name, recursive=True)
 
         # import ssh
         # 新建一个ssh客户端对象
@@ -280,42 +295,83 @@ class MyHdfsFile:
         # del_cmd = "hadoop dfs -rm -r -skipTrash " + str(pathlib.PurePosixPath(path).joinpath(p_name))
         # stdin, stdout, stderr = client.exec_command(del_cmd)
         # print(stdout.read())
+        # ssh_client.close()
 
+        #####################
         # import paramiko
-        ssh_client = paramiko.SSHClient()
-        ssh_client.load_system_host_keys()
-        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())  #paramiko.WarningPolicy()
-        ssh_client.connect("10.91.1.20", port=22, username="root", password="Redhat@2016")
-        # paramiko.SSHClient().exec_command() 可以执行一条命令；当执行多条命令时，多条命令放在一个单引号下面，各命令之间用分号隔开，且在末尾加上get_pty = True。
-        # 在command命令最后加上 get_pty=True，执行多条命令 的话用；隔开，另外所有命令都在一个大的单引号范围内引用
-        del_cmd = 'hadoop dfs -rm -r -skipTrash ' + str(pathlib.PurePosixPath(path).joinpath(p_name))
-        # 'hadoop dfs -ls /user/hive/warehouse/posflow.db/t1_trxrecprd_v2'
-        # del_cmd = 'hadoop dfs -ls /user/hive/warehouse/posflow.db/t1_trxrecprd_v2'
-        # stdin, stdout, stderr = ssh_client.exec_command(command='su hdfs;'+del_cmd, get_pty=True)
-        stdin, stdout, stderr = ssh_client.exec_command(command='su hdfs -c \''+del_cmd+'\'', get_pty=True)
-        for line in stdout:
-            print(line.strip('\n'))
-        ssh_client.close()
-
+        # ssh_client = paramiko.SSHClient()
+        # ssh_client.load_system_host_keys()
+        # ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # paramiko.WarningPolicy()
+        # ssh_client.connect("10.91.1.20", port=22, username="root", password="Redhat@2016")
         # channel = ssh_client.invoke_shell()
         # stdin = channel.makefile('wb')
         # stdout = channel.makefile('rb')
-        # #stdin.write("su hdfs \n"+del_cmd+"\n"+"exit\n")
+        # stdin.write("su hdfs \n"+del_cmd+"\n"+"exit\n")
         # stdin.write("su hdfs \n" + "ls" + "\n" + "exit\nEOF")
         # stdin.close()
         # print(stdout.read())
         # stdout.close()
 
+    @staticmethod
+    def exec_command(hdfs_ip: str, command: str, username: str, password: str, port: int = 22):
+        """
+        # paramiko.SSHClient().exec_command() 可以执行一条命令；当执行多条命令时，多条命令放在一个单引号下面，各命令之间用分号隔开，且在末尾加上get_pty = True。
+        # 在command命令最后加上 get_pty=True，执行多条命令 的话用；隔开，另外所有命令都在一个大的单引号范围内引用
+        # stdin, stdout, stderr = ssh_client.exec_command(command='su hdfs;'+del_cmd, get_pty=True) # 这个会卡住，也许是切换账号了
 
-
-        # for line in stdout:
-        #     print(line.strip('\n'))
-        #
         # err = stderr.readlines()
         # if err:
         #     print(err)
-        # ssh_client.close()
 
+        :param hdfs_ip:
+        :param command:
+        :param username:
+        :param password:
+        :param port:
+        :return:
+        """
+        # import paramiko
+        ssh_client = paramiko.SSHClient()
+        ssh_client.load_system_host_keys()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # paramiko.WarningPolicy()
+        ssh_client.connect(hdfs_ip, port=port, username=username, password=password)
+        stdin, stdout, stderr = ssh_client.exec_command(command=command, get_pty=True)
+
+        for line in stdout:
+            print(line.strip('\n'))
+
+        ssh_client.close()
+
+    @staticmethod
+    def delete_hdfs_ssh(hdfs_ip: str, path: str, p_name: str, username: str, password: str, port: int=22):
+        """
+
+        :param hdfs_ip:
+        :param path:
+        :param p_name:
+        :param username:
+        :param password:
+        :param port:
+        :return:
+        """
+        del_cmd = 'hadoop dfs -rm -r -skipTrash ' + str(pathlib.PurePosixPath(path).joinpath(p_name))
+        del_cmd = 'su hdfs -c \'' + del_cmd + '\''
+        MyHdfsFile.exec_command(hdfs_ip=hdfs_ip, command=del_cmd, username=username, password=password, port=port)
+
+    @staticmethod
+    def delete_hive_ssh(hdfs_ip: str, table: str, p_name: str, username: str, password: str, port: int = 22):
+        """
+        # del_cmd = 'hadoop dfs -ls /user/hive/warehouse/posflow.db/t1_trxrecprd_v2'
+        :param hdfs_ip:
+        :param table:
+        :param p_name:
+        :param username:
+        :param password:
+        :param port:
+        :return:
+        """
+        path = "/user/hive/warehouse/" + table.replace('.', '.db/') + "/"
+        MyHdfsFile.delete_hdfs_ssh(hdfs_ip=hdfs_ip, path=path, p_name=p_name, username=username, password=password, port=port)
 
     @staticmethod
     def check_branch(client: Client, path: str):
