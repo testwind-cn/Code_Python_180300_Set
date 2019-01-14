@@ -21,7 +21,7 @@ from conf import ConfigData
 from wj_tools.str_tool import StrTool
 
 
-def run_unzip_file(conf: ConfigData, the_date, folder_type=2, is_baoli=True):
+def run_unzip_file(conf: ConfigData, the_date, folder_type=2):
     the_date = StrTool.get_the_date_str(the_date)
     if (type(the_date) is str) and len(the_date) == 8:
         m_month = the_date[0:6]
@@ -32,23 +32,23 @@ def run_unzip_file(conf: ConfigData, the_date, folder_type=2, is_baoli=True):
     zip_path = conf.get_zip_path(1)
     data_path = conf.get_data_path(1)
 
-    f_name = conf.get_zip_name("*", 1)  # "t1_trxrecord_" the_date # "_V2.csv"
+    f_name = conf.get_zip_name("", 1)  # "t1_trxrecord_" the_date # "_V2.csv"
 
     print("Start\n")
 
     # os.path.join(root_path, the_date) # real SYB folder don't have date folder
-    branches = MyLocalFile.get_child(zip_path)
+    branches = MyLocalFile.get_child_dir(zip_path)
     for aBranch in branches:
         if MyLocalFile.check_branch(aBranch):
-            months = MyLocalFile.get_child(aBranch)
+            months = MyLocalFile.get_child_dir(aBranch)
             for aMonth in months:
                 the_month = MyLocalFile.check_month(aMonth)
                 if the_month > 0 and "{:0>6d}".format(the_month) == m_month:
-                    day_list = MyLocalFile.get_child(aMonth)
+                    day_list = MyLocalFile.get_child_dir(aMonth)
                     for aDay in day_list:
                         the_day = MyLocalFile.check_day(aDay)
                         if the_day > 0 and "{:0>2d}".format(the_day) == m_day:
-                            files = MyLocalFile.get_child(aDay)
+                            files = MyLocalFile.get_child_file(aDay)
                             for aFile in files:
                                 if MyLocalFile.check_file(aFile, p_name=f_name):
                                     short_name = os.path.basename(aBranch)
@@ -58,7 +58,8 @@ def run_unzip_file(conf: ConfigData, the_date, folder_type=2, is_baoli=True):
                                     else:
                                         new_path = os.path.join(data_path, m_month + m_day, short_name)
                                         # "{:0>6d}{:0>2d}".format(month, day)
-                                    MyLocalFile.unzip_the_file(aFile, new_path)
+                                    p_name = conf.get_file_name(m_month + m_day, 1)
+                                    MyLocalFile.unzip_the_file(aFile, new_path, p_name)
 
 
 def run_conv_file_local(conf: ConfigData, the_date: str, is_baoli=True):
@@ -127,33 +128,35 @@ def run_conv_file_local_to_hdfs(conf: ConfigData, the_date: str, is_baoli=True):
     :return:
     """
     the_date = StrTool.get_the_date_str(the_date)
-    client = MyClient(conf.hdfs_ip())  # "http://10.2.201.197:50070"
-    root_path = conf.get_data_path(1)
-    dest_dir1 = conf.get_utf8_path(1)
-    dest_dir2 = conf.get_hdfs_path(1)
+    p_client = MyClient(conf.hdfs_ip())  # "http://10.2.201.197:50070"
+    root_path = os.path.join(conf.get_data_path(1), the_date)
+    dest_dir1 = os.path.join(conf.get_utf8_path(1), the_date)
+    dest_dir2 =  str(pathlib.PurePosixPath(conf.get_hdfs_path(1)).joinpath(the_date))
 
     f_name = conf.get_file_name(the_date, 1)  # "t1_trxrecord_" the_date # "_V2.csv"
 
     print("Start\n")
 
-    branches = MyLocalFile.get_child(os.path.join(root_path, the_date))
+    branches = MyLocalFile.get_child_dir(root_path)
     for aBranch in branches:
         if MyLocalFile.check_branch(aBranch):
             files = MyLocalFile.get_child_file(aBranch)
             for aFile in files:
                 if MyLocalFile.check_file(aFile, f_name):
-                    to_file1 = os.path.join(dest_dir1, the_date, os.path.basename(aBranch), f_name)
-                    to_file2 = str(pathlib.PurePosixPath(dest_dir2).joinpath(the_date, os.path.basename(aBranch), f_name))
-                    MyLocalFile.conv_file_local(aFile, to_file1, need_first_line=False)
-                    MyHdfsFile.safe_make_dir(client, to_file2)
+                    to_file1 = os.path.join(dest_dir1, os.path.basename(aBranch), f_name)
+                    to_file2 = str(pathlib.PurePosixPath(dest_dir2).joinpath(os.path.basename(aBranch), f_name))
+                    f_add_date = conf.get_hive_add_date(the_date)
+                    f_need_head = conf.get_hive_head()  # False
+                    MyLocalFile.conv_file_local(aFile, to_file1, need_first_line=f_need_head, p_add_tail=f_add_date)
+                    MyHdfsFile.safe_make_dir(p_client, to_file2)
                     # client.newupload(to_file2, to_file1, encoding='utf-8')
-                    the_file = client.status(to_file2, strict=False)
+                    the_file = p_client.status(to_file2, strict=False)
                     if the_file is None:
-                        client.upload(to_file2, to_file1)
-                        client.set_permission(to_file2, 777)
+                        p_client.upload(to_file2, to_file1)
+                        p_client.set_permission(to_file2, 777)
                     # client.set_owner(thePath,owner='hdfs',group='supergroup')
                     elif the_file['type'].lower() == 'file':  # 'directory'
-                        client.set_permission(to_file2, 777)
+                        p_client.set_permission(to_file2, 777)
 
 
 def run_hdfs_test(conf: ConfigData):
@@ -189,25 +192,35 @@ def run_hive_test(conf: ConfigData):
 
 
 def run_remove_files(conf: ConfigData, the_date: str, delta_day=0):
-    sdate = StrTool.get_the_date_str(the_date, delta_day)  # "20181101"
-    data_path = os.path.join(conf.get_data_path(1), sdate)
-    utf8_path = os.path.join(conf.get_utf8_path(1), sdate)
-    hdfs_path = str(pathlib.PurePosixPath(conf.get_hdfs_path(1)).joinpath(sdate))
+    f_date_str = StrTool.get_the_date_str(the_date, delta_day)  # "20181101"
+    data_path = os.path.join(conf.get_data_path(1), f_date_str)
+    utf8_path = os.path.join(conf.get_utf8_path(1), f_date_str)
+    hdfs_path = str(pathlib.PurePosixPath(conf.get_hdfs_path(1)).joinpath(f_date_str))
+
+    a_client = MyClient(conf.hdfs_ip())  # "http://10.2.201.197:50070"
+
     shutil.rmtree(data_path, ignore_errors=True)
     shutil.rmtree(utf8_path, ignore_errors=True)
-    client = MyClient(conf.hdfs_ip())  # "http://10.2.201.197:50070"
-    client.delete(hdfs_path, recursive=True)
+    a_client.delete(hdfs_path, recursive=True)
+
+
+def run_remove_hive(conf: ConfigData, the_date: str, delta_day=0):
+    f_date_str = StrTool.get_the_date_str(the_date, delta_day)  # "20181101"
+    # del_table7 = conf.get_data("hive_table7") # "rds_posflow.loginfo_rsp_bl"
+    # del_file7 = the_date + conf.get_data("file_ext7").replace('.', '*.')
     # "/user/hive/warehouse/posflow.db/t1_trxrecprd_v2/t1_trxrecord_20181204_V2*.csv"
     # hive_table="posflow.t1_trxrecprd_v2",
     # file_pre1 = 't1_trxrecord_',
     # file_ext2 = "_V2.csv",
-    del_table = conf.get_data("hive_table")
-    del_file = conf.get_data("file_pre1") + sdate + conf.get_data("file_ext2").replace('.', '*.')
-    MyHdfsFile.delete_hive_ssh(conf.get_data("cdh_ip"), table=del_table, p_name=del_file, username=conf.get_data("cdh_user"),password=conf.get_data("cdh_pass"))
+
+    del_table = conf.get_table_name()   # "hive_table" + str(conf.the_id)
+    del_file = conf.get_file_name(f_date_str).replace('.', '*.')  # "file_ext" + str(conf.the_id)
+
+    MyHdfsFile.delete_hive_ssh(conf.get_data("cdh_ip"), table=del_table, p_name=del_file, username=conf.get_data("cdh_user"), password=conf.get_data("cdh_pass"))
 
 
 def run_hive(conf: ConfigData, the_date: str, is_baoli=True):
-    client = Client(conf.hdfs_ip())  # "http://10.2.201.197:50070"
+    p_client = Client(conf.hdfs_ip())  # "http://10.2.201.197:50070"
     conn = connect(host=conf.hive_ip(), port=conf.hive_port(), auth_mechanism=conf.hive_auth(), user=conf.hive_user())
     cur = conn.cursor()
 
@@ -219,12 +232,12 @@ def run_hive(conf: ConfigData, the_date: str, is_baoli=True):
     print("Start\n")
 
     idn = 0
-    branches = MyHdfsFile.get_child(client, root_path + the_date)
+    branches = MyHdfsFile.get_child(p_client, root_path + the_date)
     for aBranch in branches:
-        if MyHdfsFile.check_branch(client, aBranch):
-            files = MyHdfsFile.get_child(client, aBranch)
+        if MyHdfsFile.check_branch(p_client, aBranch):
+            files = MyHdfsFile.get_child(p_client, aBranch)
             for aFile in files:
-                if MyHdfsFile.check_file(client, aFile, f_name):
+                if MyHdfsFile.check_file(p_client, aFile, f_name):
                     # '/shouyinbao/bl_shouyinbao/UTF8/20181101/9999997900/t1_trxrecord_20181101_V2.csv'
                     to_file2 = str(pathlib.PurePosixPath(root_path).joinpath(the_date, os.path.basename(aBranch), f_name))
                     sql = 'LOAD DATA INPATH \'' + to_file2 + '\' INTO TABLE ' + table_name  # 'test.t1_trxrecprd_v2_zc'
@@ -253,16 +266,16 @@ if __name__ == "__main__":
         day_str = the_conf.test_date()
         days = 190
     else:
-        day_str = StrTool.get_param_str(1, "")
-        days = StrTool.get_param_int(2, 1)
+        the_conf.m_project_id = StrTool.get_param_int(1, 1)
+        day_str = StrTool.get_param_str(2, "")
+        days = StrTool.get_param_int(3, 1)
 
     # test
-    day_str = "20181202"
-    run_remove_files(the_conf, day_str, 0)
+    # day_str = "20181202"
+    # run_remove_files(the_conf, day_str, 0)
+    # run_hdfs_test(the_conf)
+    # run_hive_test(the_conf)
     # test
-
-    run_hdfs_test(the_conf)
-    run_hive_test(the_conf)
 
     day_str = StrTool.get_the_date_str(day_str)
 
@@ -279,8 +292,13 @@ if __name__ == "__main__":
         day_str2 = date2.strftime("%Y%m%d")
         run_remove_files(the_conf, day_str2, - keep_range)
         run_remove_files(the_conf, day_str2, 0)
+        run_remove_hive(the_conf, day_str2, 0)
+
         run_unzip_file(the_conf, the_date=day_str2)
-        run_conv_file_local_to_hdfs(the_conf, the_date=day_str2, is_baoli=False)
-        run_hive(the_conf, the_date=day_str2, is_baoli=False)
+
+        run_conv_file_local_to_hdfs(the_conf, the_date=day_str2)
+        run_hive(the_conf, the_date=day_str2)
+
+        run_remove_files(the_conf, day_str2, 0)
 
     print("ok")

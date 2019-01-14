@@ -184,7 +184,7 @@ class MyLocalFile:
         return
 
     @staticmethod
-    def conv_file_local(from_file: str, to_file: str, need_first_line: bool=False):
+    def conv_file_local(from_file: str, to_file: str, need_first_line: bool=False, p_add_head: str="", p_add_tail: str=""):
         if not os.path.isfile(from_file):
             return
         new_path = os.path.dirname(to_file)
@@ -192,10 +192,19 @@ class MyLocalFile:
 
         f1 = open(from_file, 'r', encoding="gb18030")
         f2 = open(to_file, 'w', encoding="utf-8")
-        data = '  '
         i = 0
+        data = f1.readline()
+        # data = '  '
         while len(data) > 0:
-            data = f1.readline()
+            if len(p_add_head) > 0:
+                data = "\"" + p_add_head + "\"," + data
+            if len(p_add_tail) > 0:
+                if data.endswith("\n\r"):
+                    data = data[0:len(data) - 2] + ",\"" + p_add_tail + "\"\n\r"
+                elif data.endswith("\n"):
+                    data = data[0:len(data) - 1] + ",\"" + p_add_tail + "\"\n"
+                else:
+                    data = data + ",\"" + p_add_tail + "\""
             #  print(data + "\n\n")
             #  print(i)
             #        code = chardet.detect(dd)['encoding']
@@ -210,6 +219,8 @@ class MyLocalFile:
                 f2.write(data)
             # print("\nWrite")
             i = i + 1
+            data = f1.readline()
+
         print("Write " + to_file + "\n")
         f1.close()
         f2.close()

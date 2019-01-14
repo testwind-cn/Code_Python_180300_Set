@@ -65,9 +65,9 @@ def run_conv_file_local_to_hdfs(conf: ConfigData, the_date: str):
         if short_name == file_name:
             to_file1 = str(pathlib.PurePath(dest_dir1).joinpath(pathlib.PurePath(aFile).name))
             to_file2 = str(pathlib.PurePosixPath(dest_dir2).joinpath(pathlib.PurePath(aFile).name))
-
+            f_add_date = conf.get_hive_add_date(the_date)
             f_need_head = conf.get_hive_head()
-            MyLocalFile.conv_file_local(aFile, to_file1, need_first_line=f_need_head)
+            MyLocalFile.conv_file_local(aFile, to_file1, need_first_line=f_need_head, p_add_tail=f_add_date)
             MyHdfsFile.safe_make_dir(a_client, to_file2)
             # a_client.newupload(to_file2, to_file1, encoding='utf-8')
             the_file = a_client.status(to_file2, strict=False)
@@ -112,10 +112,10 @@ def run_hive(conf: ConfigData, the_date: str):
 
 
 def run_remove_files(conf: ConfigData, the_date: str, delta_day=0):
-    sdate = StrTool.get_the_date_str(the_date, delta_day)   # "20181101"
-    data_path = os.path.join(conf.get_data_path(), sdate)   # allinpay_data_bl
-    utf8_path = os.path.join(conf.get_utf8_path(), sdate)   # allinpay_utf8_bl
-    hdfs_path = str(pathlib.PurePosixPath(conf.get_hdfs_path()).joinpath(sdate))    # hdfs_dir_bl
+    f_date_str = StrTool.get_the_date_str(the_date, delta_day)   # "20181101"
+    data_path = os.path.join(conf.get_data_path(), f_date_str)   # allinpay_data_bl
+    utf8_path = os.path.join(conf.get_utf8_path(), f_date_str)   # allinpay_utf8_bl
+    hdfs_path = str(pathlib.PurePosixPath(conf.get_hdfs_path()).joinpath(f_date_str))    # hdfs_dir_bl
 
     a_client = MyClient(conf.hdfs_ip())  # "http://10.2.201.197:50070"
 
@@ -124,12 +124,13 @@ def run_remove_files(conf: ConfigData, the_date: str, delta_day=0):
     a_client.delete(hdfs_path, recursive=True)
 
 
-def run_remove_hive(conf: ConfigData, the_date: str):
+def run_remove_hive(conf: ConfigData, the_date: str, delta_day=0):
+    f_date_str = StrTool.get_the_date_str(the_date, delta_day)  # "20181101"
     # del_table7 = conf.get_data("hive_table7") # "rds_posflow.loginfo_rsp_bl"
     # del_file7 = the_date + conf.get_data("file_ext7").replace('.', '*.')
 
     del_table = conf.get_table_name()   # "hive_table" + str(conf.the_id)
-    del_file = conf.get_file_name(the_date).replace('.', '*.')  # "file_ext" + str(conf.the_id)
+    del_file = conf.get_file_name(f_date_str).replace('.', '*.')  # "file_ext" + str(conf.the_id)
 
     MyHdfsFile.delete_hive_ssh(conf.get_data("cdh_ip"), table=del_table, p_name=del_file, username=conf.get_data("cdh_user"), password=conf.get_data("cdh_pass"))
 
@@ -180,16 +181,18 @@ if __name__ == "__main__":
         delta = days - i - 1 + 1  # 多加1天，是因为20190108处理的是20190107文件夹
         date2 = date1 - datetime.timedelta(days=delta)
         day_str2 = date2.strftime("%Y%m%d")
-        run_remove_hive(the_conf, day_str2)
         run_remove_files(the_conf, day_str2, 0)
+        run_remove_hive(the_conf, day_str2, 0)
+
         run_sftp_file(the_conf, day_str2)
 
         g_zip_path = the_conf.get_zip_path()
         if len(g_zip_path) > 0:
-            run_unzip_file(the_conf, day_str2)
+            run_unzip_file(the_conf, the_date=day_str2)
 
-        run_conv_file_local_to_hdfs(the_conf, day_str2)
+        run_conv_file_local_to_hdfs(the_conf, the_date=day_str2)
         run_hive(the_conf, the_date=day_str2)
+
         run_remove_files(the_conf, day_str2, 0)
 
     print("ok")

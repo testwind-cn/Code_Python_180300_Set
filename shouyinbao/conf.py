@@ -111,12 +111,100 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
     rx_info4     string     ,
     rx_info5     string
     )ROW format delimited fields terminated BY ',' STORED AS TEXTFILE;
-    """
+    
+    
+    
+    drop table rds_posflow.loginfo_rsp_bl;
+
+    CREATE TABLE rds_posflow.loginfo_rsp_bl (    
+CREATE TABLE rds_posflow.loginfo_rsp_agt_bl (
+sn     string,
+tx_date     string,
+tx_time     string,
+settle_time     string,
+mcht_cd     string,
+mcht_type     string,
+device_id     string,
+card_type     string,
+currency     string,
+card_no     string,
+card_bank     string,
+trans_type     string,
+trans_amt     string,
+settle_amt     string,
+fee     string,
+trans_status     string,
+card_inst     string,
+trans_area     string,
+origin_time     string
+)ROW format delimited fields terminated BY ',' STORED AS TEXTFILE;
+
+   mchtCd
+UpBcCd
+AipBranCd
+branchCd
+Name
+ProvcCd
+CityCd
+AreaCd
+Addr
+Contact
+Tel
+Fax
+Email
+ApprDate
+DeleteDate
+BusiArea
+ProdArea
+ProdRegion
+TimeOpen
+TimeClose
+Account
+AccountName
+BankCode
+BankName
+BranchBusinessStatus
+
+
+ 
+     drop table rds_posflow.branch_apms_bl;
+
+    CREATE TABLE rds_posflow.branch_apms_bl (
+opcode	string,  
+mchtcd	string,
+upbccd	string,
+aipbrancd	string,
+branchcd	string,
+name	string,
+provccd	string,
+citycd	string,
+areacd	string,
+addr	string,
+contact	string,
+tel	string,
+fax	string,
+email	string,
+apprdate	string,
+deletedate	string,
+busiarea	string,
+prodarea	string,
+prodregion	string,
+timeopen	string,
+timeclose	string,
+account	string,
+accountname	string,
+bankcode	string,
+bankname	string,
+branchbusinessstatus	string,
+file_date		string
+)ROW format delimited fields terminated BY ',' STORED AS TEXTFILE;
+
+ """
 
     m_same_data: RealData = \
         RealData(test_date="20181205",
 
-                 hive_table1="rds_posflow.t1_trxrecprd_v2",
+                 hive_table1="rds_posflow.t1_trxrecprd_v2",  # 表名只能小写
                  hive_table3="rds_posflow.loginfo_rsp_zc",
                  hive_table4="rds_posflow.rxinfo_rsp_zc",
                  hive_table5="rds_posflow.loginfo_rsp_agt_zc",
@@ -124,6 +212,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
                  hive_table7="rds_posflow.loginfo_rsp_bl",
                  hive_table8="rds_posflow.loginfo_rsp_agt_bl",
                  hive_table9="rds_posflow.rxinfo_rsp_bl",
+                 hive_table10="rds_posflow.branch_apms_bl",
 
                  hive_head1="1",    # 1、有表头，需要删除, need_head=False
                  hive_head3="0",    # 0、无表头，不要删除, need_head=True
@@ -133,6 +222,9 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
                  hive_head7="1",
                  hive_head8="1",
                  hive_head9="0",
+                 hive_head10="1",
+
+                 hive_add_date_10="1",   # 在最后一列，追加文件日期
 
                  ftp_ip_3="172.31.71.71",
                  ftp_port_3="12306",
@@ -145,8 +237,8 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
                  ftp_pass_7="Redhat@2016",
 
                  file_pre1='t1_trxrecord_',
-                 file_ftp1="_V2.zip",               # "t1_trxrecord_20190108_V2.zip"
-                 file_zip1="_V2.zip",               # "t1_trxrecord_20190108_V2.zip"
+                 file_ftp1="V2.zip",               # "t1_trxrecord_20190108_V2.zip"
+                 file_zip1="V2.zip",               # "t1_trxrecord_20190108_V2.zip"
                  file_ext1="_V2.csv",               # "t1_trxrecord_20190108_V2.csv"
 
                  remote_path_ftp_3="/upload/",
@@ -181,6 +273,12 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
                  # 2019-1-8 03:31 来,无表头 GB      # /ftpdata/thblposloan/sftp/data/thblposloan/traderisk/20190108/20190108_rxinfo_rsp_bl.txt
                  file_ftp9="_rxinfo_rsp_bl.txt",
                  file_ext9="_rxinfo_rsp_bl.txt",
+
+                 remote_path_ftp_10="/ftpdata/thblposloan/merchantsinfo/",
+                 # 2019-1-8 22:25 来,有表头 GB      # /ftpdata/thblposloan/merchantsinfo/20190108/Branch_APMS_2nd_20190108.txt
+                 file_pre10='Branch_APMS_2nd_',
+                 file_ftp10=".txt",                 # "Branch_APMS_2nd_20190108.txt"
+                 file_ext10=".txt",                 # "Branch_APMS_2nd_20190108.txt"
 
                  hdfs_dir_1="/data/posflow/shouyinbao_utf8/",
                  hdfs_dir_3="/data/posflow/allinpay_utf8_zc/",
@@ -346,7 +444,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
         if p_id < 0:
             p_id = self.m_project_id
         f_name0 = ""
-        if p_id == 1:
+        if p_id == 1 or p_id == 10:
             f_name1 = self.get_data("file_pre" + str(p_id))
             f_name2 = self.get_data("file_ftp" + str(p_id))
             if len(f_name1) > 0 or len(f_name2) > 0:
@@ -361,7 +459,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
         if p_id < 0:
             p_id = self.m_project_id
         f_name0 = ""
-        if p_id == 1:
+        if p_id == 1 or p_id == 10:
             f_name1 = self.get_data("file_pre" + str(p_id))
             f_name2 = self.get_data("file_ext" + str(p_id))
             if len(f_name1) > 0 or len(f_name2) > 0:
@@ -380,14 +478,25 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
     def get_hive_head(self, p_id: int = -1):
         # hive_head1 = "1",  # 1、有表头，需要删除, need_head=False
         # hive_head3 = "0",  # 0、无表头，不要删除, need_head=True
-        f_need_head = True
+        f_return_value = True
         if p_id < 0:
             p_id = self.m_project_id
-        f_head = self.get_data("hive_head" + str(p_id))
-        if len(f_head) > 0 and f_head.isdecimal():
-            if int(f_head) > 0:
-                f_need_head = False
-        return f_need_head
+        f_value = self.get_data("hive_head" + str(p_id))
+        if len(f_value) > 0 and f_value.isdecimal():
+            if int(f_value) > 0:
+                f_return_value = False
+        return f_return_value
+
+    def get_hive_add_date(self, p_date: str = "", p_id: int = -1):
+        # hive_add_date_10 = "1",  # 1、要增加日期字段
+        f_return_value = ""
+        if p_id < 0:
+            p_id = self.m_project_id
+        f_value = self.get_data("hive_add_date_" + str(p_id))
+        if len(f_value) > 0 and f_value.isdecimal():
+            if int(f_value) > 0:
+                f_return_value = p_date
+        return f_return_value
 
     def get_ftp_ip(self, p_id: int = -1):
         if p_id < 0:
@@ -395,7 +504,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
         f_dir = ""
         if 3 <= p_id <= 6:
             f_dir = self.get_data("ftp_ip_3")
-        if 7 <= p_id <= 9:
+        if 7 <= p_id <= 10:
             f_dir = self.get_data("ftp_ip_7")
         return f_dir
 
@@ -405,7 +514,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
         f_dir = ""
         if 3 <= p_id <= 6:
             f_dir = self.get_data("ftp_port_3")
-        if 7 <= p_id <= 9:
+        if 7 <= p_id <= 10:
             f_dir = self.get_data("ftp_port_7")
         return f_dir
 
@@ -415,7 +524,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
         f_dir = ""
         if 3 <= p_id <= 6:
             f_dir = self.get_data("ftp_user_3")
-        if 7 <= p_id <= 9:
+        if 7 <= p_id <= 10:
             f_dir = self.get_data("ftp_user_7")
         return f_dir
 
@@ -425,7 +534,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
         f_dir = ""
         if 3 <= p_id <= 6:
             f_dir = self.get_data("ftp_pass_3")
-        if 7 <= p_id <= 9:
+        if 7 <= p_id <= 10:
             f_dir = self.get_data("ftp_pass_7")
         return f_dir
 
@@ -441,6 +550,9 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
         if p_id == 9:
             f_dir = self.get_data("remote_path_ftp_9")
             f_dir = str(pathlib.PurePosixPath(f_dir).joinpath(p_date))
+        if p_id == 10:
+            f_dir = self.get_data("remote_path_ftp_10")
+            f_dir = str(pathlib.PurePosixPath(f_dir).joinpath(p_date))
         return f_dir
 
     def get_local_path_ftp(self, p_id: int = -1):
@@ -451,7 +563,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
             f_dir = self.get_data("local_path_ftp_1")
         if 3 <= p_id <= 6:
             f_dir = self.get_data("local_path_ftp_3")
-        if 7 <= p_id <= 9:
+        if 7 <= p_id <= 10:
             f_dir = self.get_data("local_path_ftp_7")
 
         return f_dir
@@ -474,7 +586,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
             f_dir = self.get_data("local_path_data_1")
         if 3 <= p_id <= 6:
             f_dir = self.get_data("local_path_data_3")
-        if 7 <= p_id <= 9:
+        if 7 <= p_id <= 10:
             f_dir = self.get_data("local_path_data_7")
         return f_dir
 
@@ -486,7 +598,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
             f_dir = self.get_data("local_path_utf8_1")
         if 3 <= p_id <= 6:
             f_dir = self.get_data("local_path_utf8_3")
-        if 7 <= p_id <= 9:
+        if 7 <= p_id <= 10:
             f_dir = self.get_data("local_path_utf8_7")
         return f_dir
 
@@ -498,7 +610,7 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
             f_dir = self.get_data("hdfs_dir_1")
         if 3 <= p_id <= 6:
             f_dir = self.get_data("hdfs_dir_3")
-        if 7 <= p_id <= 9:
+        if 7 <= p_id <= 10:
             f_dir = self.get_data("hdfs_dir_7")
         return f_dir
 
