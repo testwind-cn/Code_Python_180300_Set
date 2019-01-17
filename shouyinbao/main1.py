@@ -147,7 +147,7 @@ def run_conv_file_local_to_hdfs(conf: ConfigData, the_date: str, is_baoli=True):
                     to_file2 = str(pathlib.PurePosixPath(dest_dir2).joinpath(os.path.basename(aBranch), f_name))
                     f_add_date = conf.get_hive_add_date(the_date)
                     f_need_head = conf.get_hive_head()  # False
-                    MyLocalFile.conv_file_local(aFile, to_file1, need_first_line=f_need_head, p_add_tail=f_add_date)
+                    MyLocalFile.conv_file_local(aFile, to_file1, need_first_line=f_need_head, p_add_head=f_add_date)
                     MyHdfsFile.safe_make_dir(p_client, to_file2)
                     # client.newupload(to_file2, to_file1, encoding='utf-8')
                     the_file = p_client.status(to_file2, strict=False)

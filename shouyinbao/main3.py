@@ -67,7 +67,7 @@ def run_conv_file_local_to_hdfs(conf: ConfigData, the_date: str):
             to_file2 = str(pathlib.PurePosixPath(dest_dir2).joinpath(pathlib.PurePath(aFile).name))
             f_add_date = conf.get_hive_add_date(the_date)
             f_need_head = conf.get_hive_head()
-            MyLocalFile.conv_file_local(aFile, to_file1, need_first_line=f_need_head, p_add_tail=f_add_date)
+            MyLocalFile.conv_file_local(aFile, to_file1, need_first_line=f_need_head, p_add_head=f_add_date)
             MyHdfsFile.safe_make_dir(a_client, to_file2)
             # a_client.newupload(to_file2, to_file1, encoding='utf-8')
             the_file = a_client.status(to_file2, strict=False)
@@ -179,6 +179,14 @@ if __name__ == "__main__":
     date1 = StrTool.get_the_date(day_str)
     for i in range(0, days):
         delta = days - i - 1 + 1  # 多加1天，是因为20190108处理的是20190107文件夹
+
+        # delta = days - i - 1   # 不多加1天，20190108处理的是20190108文件夹
+        # Branch_APMS_2nd_20160701.txt
+        # 共执行了922天：因为缺了 20171010 的文件； 2016-10-19 有多的两个补数文件
+        # 1、20190110 191    2019-1-9    2018-7-3
+        # 3、20180703 265    2018-7-2    2017-10-11
+        # 2、20171010 466    2017-10-9   2016-7-1
+
         date2 = date1 - datetime.timedelta(days=delta)
         day_str2 = date2.strftime("%Y%m%d")
         run_remove_files(the_conf, day_str2, 0)
@@ -188,7 +196,7 @@ if __name__ == "__main__":
 
         g_zip_path = the_conf.get_zip_path()
         if len(g_zip_path) > 0:
-            run_unzip_file(the_conf, the_date=day_str2)
+            run_unzip_file(the_conf, p_date=day_str2)
 
         run_conv_file_local_to_hdfs(the_conf, the_date=day_str2)
         run_hive(the_conf, the_date=day_str2)

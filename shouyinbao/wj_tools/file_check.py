@@ -5,6 +5,7 @@ import fnmatch
 import paramiko
 import pathlib
 import zipfile
+import csv
 # import platform
 from wj_tools.mylog import myLog
 from hdfs.client import Client
@@ -182,6 +183,55 @@ class MyLocalFile:
                 zip_file.extract(names, newpath)
         zip_file.close()
         return
+
+    @staticmethod
+    def conv_csv_local(from_file: str, to_file: str, need_first_line: bool = False, p_add_head: str = "", p_add_tail: str = ""):
+        if not os.path.isfile(from_file):
+            return
+        new_path = os.path.dirname(to_file)
+        pathlib.Path(new_path).mkdir(parents=True, exist_ok=True)
+
+        f1 = open(from_file, 'r',  newline='', encoding="gb18030")
+        f2 = open(to_file, 'w',  newline='', encoding="utf-8")
+        # 默认的情况下, 读和写使用逗号做分隔符(delimiter)，用双引号作为引用符(quotechar)，当遇到特殊情况是，可以根据需要手动指定字符, 例如:
+        # reader = csv.reader(f, delimiter=':', quoting=csv.QUOTE_NONE)
+        f_reader = csv.reader(f1, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL,
+                              doublequote=False, escapechar='\\')
+        f_writer = csv.writer(f2, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL,
+                              doublequote=False, escapechar='\\',
+                              lineterminator='')  # lineterminator='\r\n'
+        i = 0
+        # data = f1.readline()
+        # data = '  '
+        for row in f_reader:
+            if len(row) <= 0:
+                continue
+            if len(p_add_head) > 0:
+                row = [p_add_head] + row
+            if len(p_add_tail) > 0:
+                row = row + [p_add_tail]
+
+            #  print(data + "\n\n")
+            #  print(i)
+            #        code = chardet.detect(dd)['encoding']
+            #        print(code)
+            #        middle = dd.decode("gb18030")  # gb2312
+            #        ss = middle.encode("utf-8")
+            #        ss = dd.encode("utf-8")
+            #        print(dd)
+            #        if i > 0 or platform.platform().lower().startswith("linux"):
+            #            f2.write(data)
+            if i >= 2 or (i >= 1 and need_first_line):
+                f2.write('\r\n')
+            if i >= 1 or need_first_line:
+                f_writer.writerow(row)
+            # print("\nWrite")
+            i = i + 1
+
+        print("Write " + to_file + "\n")
+        f1.close()
+        f2.close()
+        print("ok")
 
     @staticmethod
     def conv_file_local(from_file: str, to_file: str, need_first_line: bool=False, p_add_head: str="", p_add_tail: str=""):
