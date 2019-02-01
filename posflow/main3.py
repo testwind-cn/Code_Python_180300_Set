@@ -170,22 +170,50 @@ if __name__ == "__main__":
         day_str = the_conf.test_date()
         days = 9
     else:
-        the_conf.m_project_id = StrTool.get_param_int(1, 7)
+        the_conf.m_project_id = StrTool.get_param_int(1, 10)
         day_str = StrTool.get_param_str(2, "")
         days = StrTool.get_param_int(3, 1)
 
-    day_str = StrTool.get_the_date_str(day_str)
+    f_delta = the_conf.get_data("file_date_delta"+str(the_conf.m_project_id), "0")
+
+    day_str = StrTool.get_the_date_str(day_str, - int(f_delta))
 
     date1 = StrTool.get_the_date(day_str)
     for i in range(0, days):
-        delta = days - i - 1 + 1  # 多加1天，是因为20190108处理的是20190107文件夹
+        delta = days - i - 1  # 不多加1天，20190108处理的是20190108文件夹
+        # delta = days - i - 1 + 1  # 多加1天，是因为20190108处理的是20190107文件夹
 
-        # delta = days - i - 1   # 不多加1天，20190108处理的是20190108文件夹
-        # Branch_APMS_2nd_20160701.txt
+        # 收银宝文件没有多 delta 1天
+        # 1、20190110 191    2019-1-10    2018-7-4
+        # 2、1 20180703 191  2018-7-3     2017-12-25 （2019-1-24 晚上）
+
+        # 保理流水
+        # 2、之前是到 20180702， 是先191天，之后手工多补了一天 20180702
+        # 3、main3.py 7 20180702 70， 处理 20180702-20180423 （2019-1-25中午）
+        # 4、main3.py 8 20180702 70， 处理 20180702-20180423 （2019-1-25中午）
+        # 修改路径 remote_path_ftp_7="/ftpdata/thblposloan/posflow2/"
+        # 5、main3.py 7 20180420 201      （2019-1-25中午）
+        # 6、main3.py 8 20180420 201      （2019-1-25中午）
+
+        # 保理风险
+        # 3、2019-1-23 晚上已经补到 20180423
+        # 修改路径 remote_path_ftp_9="/ftpdata/thblposloan/sftp/data/thblposloan/traderisk2/",
+        # 7、main3.py 9 20180420 202      （2019-1-25中午）
+
+
+        # Branch_APMS_2nd_20160701.txt  有多 delta 1天
         # 共执行了922天：因为缺了 20171010 的文件； 2016-10-19 有多的两个补数文件
         # 1、20190110 191    2019-1-9    2018-7-3
         # 3、20180703 265    2018-7-2    2017-10-11
         # 2、20171010 466    2017-10-9   2016-7-1
+
+        # 其他文件没有多 delta 1天
+        # 1、20190110 191    2019-1-10    2018-7-4 但实际看见的文件是到 2018-7-3 日
+        # 再给保理7、8号两个流水增加1天文件2018-7-2，运行   7 20180703 1
+        # 上面都是 205个文件
+        # 再风险 4、6、9，  运行 4 20180702 190
+        # 再流水 3、5、7，8  运行 3 20180702 190
+
 
         date2 = date1 - datetime.timedelta(days=delta)
         day_str2 = date2.strftime("%Y%m%d")

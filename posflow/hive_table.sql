@@ -272,3 +272,80 @@ TBLPROPERTIES (
 Time taken: 0.031 seconds, Fetched: 45 row(s)
 
 
+
+#  -----------
+DROP TABLE rds_posflow.tm_branch_info;
+
+CREATE TABLE rds_posflow.tm_branch_info (
+MCHT_BRANCH_ID	string,
+MCHT_CD	string,
+BRANCH_CD	string,
+UP_BC_CD	string,
+NAME	string,
+PROVC_CD	string,
+CITY_CD	string,
+AREA_CD	string,
+ADDR	string,
+CONTACT	string,
+TEL	string,
+FAX	string,
+EMAIL	string,
+APPR_DATE	string,
+DELETE_DATE	string,
+AIP_BRAN_CD	string,
+BUSI_AREA	string,
+PROD_AREA	string,
+PROD_REGION	string,
+TIME_OPEN	string,
+TIME_CLOSE	string,
+ACCOUNT	string,
+ACCOUNT_NAME	string,
+BANK_CODE	string,
+BANK_NAME	string,
+BRANCH_BUSINESS_STATUS	string
+) ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+    "separatorChar" = ",",
+    "quoteChar" = "\"",
+    "escapeChar" = "\\"
+)
+STORED AS TEXTFILE;
+
+-- iconv -f 原编码 -t 新编码 filename -o newfile
+-- iconv -f GB18030 -t UTF8 /root/Downloads/TM_BRANCH_INFO.prd.all.del -o /root/Downloads/TM_BRANCH_INFO.prd.all_utf8.del
+
+LOAD DATA LOCAL INPATH '/root/Downloads/TM_BRANCH_INFO.prd.all_utf8.del' INTO TABLE rds_posflow.tm_branch_info;
+
+-------------------------
+DROP TABLE rds_posflow.tm_branch_info_statictis;
+
+CREATE TABLE rds_posflow.tm_branch_info_statictis (
+MCHT_CD	string,
+BRANCH_NUM	string,
+MAX_BUSI_AREA	string,
+TOTAL_AREA	string,
+IS_LARGE_SHOPPING_MCHT	string,
+LAST_UPDATE_DATE	string,
+LAST_UPDATE_TIME	string,
+JPA_VERSION	string
+) ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+    "separatorChar" = ",",
+    "quoteChar" = "\"",
+    "escapeChar" = "\\"
+)
+STORED AS TEXTFILE;
+
+
+-- iconv -f 原编码 -t 新编码 filename -o newfile
+-- iconv -f GB18030 -t UTF8 /root/Downloads/TM_BRANCH_INFO_STATICTIS.prd.all.del -o /root/Downloads/TM_BRANCH_INFO_STATICTIS.prd.all_utf8.del
+
+LOAD DATA LOCAL INPATH '/root/Downloads/TM_BRANCH_INFO_STATICTIS.prd.all_utf8.del' INTO TABLE rds_posflow.tm_branch_info_statictis;
+
+--------------
+
+
+
+select * from  rds_posflow.loginfo_rsp_agt_bl
+where unix_timestamp('20181007','yyyyMMdd') < unix_timestamp(trim(tx_date),'yyyyMMdd')
+  and unix_timestamp(trim(tx_date),'yyyyMMdd')  < unix_timestamp('20181009','yyyyMMdd')  ;

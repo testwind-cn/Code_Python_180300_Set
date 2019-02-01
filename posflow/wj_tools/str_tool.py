@@ -12,7 +12,7 @@ class StrTool:
             the_str = sys.argv[index]
         else:
             the_str = ""
-        if type(the_str) is str and the_str.isdecimal():
+        if type(the_str) is str and the_str.isdigit():
             return int(the_str)
         else:
             return default
@@ -26,7 +26,7 @@ class StrTool:
             return default
 
     @staticmethod
-    def get_the_date(the_day_str='', delta_day=0):
+    def get_the_date(the_day_str: str ='', delta_day: int =0):
         """ # 19700501 to 21000101
 
         :param the_day_str: str
@@ -40,19 +40,19 @@ class StrTool:
             sdate1 = datetime.datetime.strptime(the_day_str, "%Y%m%d").date()
             # stime = time.strptime(the_day_str, "%Y%m%d")
             sdate2 = sdate1 + datetime.timedelta(days=delta_day)
-        except Exception as e:
+        except ValueError as e:
             sdate1 = datetime.date.today()
             sdate2 = sdate1 + datetime.timedelta(days=delta_day)
         return sdate2
 
     @staticmethod
-    def get_the_date_tick(the_day_str='', delta_day=0):
+    def get_the_date_tick(the_day_str: str ='', delta_day: int =0):
         sdate1 = StrTool.get_the_date(the_day_str=the_day_str, delta_day=delta_day)
         thedatetick = time.mktime(sdate1.timetuple())
         return thedatetick
 
     @staticmethod
-    def get_the_date_str(the_day_str='', delta_day=0):
+    def get_the_date_str(the_day_str: str ='', delta_day: int =0):
         sdate1 = StrTool.get_the_date(the_day_str=the_day_str, delta_day=delta_day)
         the_day_str = sdate1.strftime("%Y%m%d")
         #        curYear = 2018
