@@ -61,8 +61,10 @@ class ConfigData:
 
                  hive_add_date_10="1",   # 在最后一列，追加文件日期
 
+                 file_date_delta1="1",  # 时间偏移一天，2019-1-9 处理 2019-1-8 ， 没有就是0
                  file_date_delta7="1",  # 时间偏移一天，2019-1-9 处理 2019-1-8 ， 没有就是0
                  file_date_delta8="1",
+
                  file_date_time3="3:50",
                  file_date_time4="3:50",
                  file_date_time5="13:00",

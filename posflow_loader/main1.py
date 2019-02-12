@@ -3,7 +3,7 @@ import os
 import shutil
 import pathlib
 # import zipfile
-# import subprocess
+import subprocess
 # import platform
 import datetime
 # hdfs
@@ -257,8 +257,8 @@ def run_hive(conf: ConfigData, the_date: str, is_baoli=True):
 
 if __name__ == "__main__":
 
-    #    return_code = subprocess.call("./ftpcmd.sh", shell=True)
-    #    print(return_code)
+    return_code = subprocess.call("/app/code/posflow_loader/ftpcmd.sh", shell=True)
+    print(return_code)
 
     the_conf = ConfigData(p_is_test=False)
 
@@ -277,7 +277,8 @@ if __name__ == "__main__":
     # run_hive_test(the_conf)
     # test
 
-    day_str = StrTool.get_the_date_str(day_str)
+    f_delta = the_conf.get_data("file_date_delta" + str(the_conf.m_project_id), "0")
+    day_str = StrTool.get_the_date_str(day_str, - int(f_delta))
 
     del_range = 30  # 删除旧数据的时间范围，天
     keep_range = 7  # 保留最近旧数据的时间范围，天

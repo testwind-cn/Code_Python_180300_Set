@@ -3,7 +3,6 @@
 # _*_ Author:WangJun _*_
 
 # 利用sparksql计算输出th_branch_info_statictis表
-# spark-submit  /hdfs/branch_info.py 1 20190204
 
 import os
 import sys
@@ -80,8 +79,7 @@ def add_branch_data(p_sql_context, p_the_date=""):
 
     print(f_this_date + ": " + table_this_name + " 表数据插入开始")
 
-    # p_sql_s = "DROP TABLE if exists rds_posflow.{}".format(table_this_name)
-    p_sql_s = "ALTER TABLE rds_posflow.th_branch_info DROP IF EXISTS PARTITION (cal_date='{}')".format(f_this_date)
+    p_sql_s = "DROP TABLE if exists rds_posflow.{}".format(table_this_name)
     p_sql_context.sql(p_sql_s)
 
     p_sql_s = """
@@ -105,9 +103,9 @@ WITH SERDEPROPERTIES (
 )
 STORED AS TEXTFILE""".format(table_this_name)
 
-    # p_sql_context.sql(p_sql_s)
+    p_sql_context.sql(p_sql_s)
 
-    # p_sql_context.sql("truncate table rds_posflow.{}".format(table_this_name))
+    p_sql_context.sql("truncate table rds_posflow.{}".format(table_this_name))
 
     p_sql_context.sql("set hive.enforce.bucketing = true")
     p_sql_context.sql("set mapreduce.job.reduces=20")
@@ -115,7 +113,7 @@ STORED AS TEXTFILE""".format(table_this_name)
     p_sql_context.sql("set mapred.reduce.tasks = 20")
 
     p_sql_s = """
-INSERT OVERWRITE TABLE rds_posflow.th_branch_info PARTITION (cal_date='{}')
+insert into rds_posflow.{}
     select 
       if( s.mcht_cd is null and s.branch_cd is null, d.mcht_branch_id, s.mcht_branch_id ) as mcht_branch_id,
       if( s.mcht_cd is null and s.branch_cd is null, d.mcht_cd, s.mcht_cd ) as mcht_cd,
@@ -148,16 +146,16 @@ INSERT OVERWRITE TABLE rds_posflow.th_branch_info PARTITION (cal_date='{}')
          mcht_cd,branch_cd, appr_date, delete_date,
          aip_bran_cd, busi_area, account, account_name,
          branch_business_status
-        from rds_posflow.th_branch_info where cal_date='{}'
+        from rds_posflow.{}
         CLUSTER by( mcht_cd)
         )
       d on s.mcht_branch_id = d.mcht_branch_id 
       CLUSTER by( mcht_cd)
-    """.format(f_this_date, f_this_date, f_last_date)
+    """.format(table_this_name, f_this_date, table_last_name)
 
     p_sql_context.sql(p_sql_s)
 
-    print(f_this_date + ": " + "th_branch_info (cal_date='{}')".format(f_this_date) + " 表数据插入完成")
+    print(f_this_date + ": " + table_this_name + " 表数据插入完成")
 
 
 def cal_branch_info(p_sql_context, p_the_date=""):
@@ -206,7 +204,7 @@ select
     if(max(length(account)) > 5, 'Y', 'N') as is_large_shopping_mcht,
     cast(current_date() as string)  as last_update_date,
     cast(current_timestamp() as string) as last_update_time
-from rds_posflow.th_branch_info where cal_date='{}' group by mcht_cd CLUSTER by( mcht_cd)""".format(f_today_date)
+from rds_posflow.{} group by mcht_cd CLUSTER by( mcht_cd)""".format(table_name)
 
     p_sql_context.sql(p_sql_s)
 

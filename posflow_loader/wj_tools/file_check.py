@@ -353,7 +353,7 @@ class MyHdfsFile:
         # stdin, stdout, stderr = client.exec_command("ls -l")
         # # 读返回结果
         # print(stdout.read())
-        # del_cmd = "hadoop dfs -rm -r -skipTrash " + str(pathlib.PurePosixPath(path).joinpath(p_name))
+        # del_cmd = "hdfs dfs -rm -r -skipTrash " + str(pathlib.PurePosixPath(path).joinpath(p_name))
         # stdin, stdout, stderr = client.exec_command(del_cmd)
         # print(stdout.read())
         # ssh_client.close()
@@ -415,14 +415,14 @@ class MyHdfsFile:
         :param port:
         :return:
         """
-        del_cmd = 'hadoop dfs -rm -r -skipTrash ' + str(pathlib.PurePosixPath(path).joinpath(p_name))
+        del_cmd = 'hdfs dfs -rm -r -skipTrash ' + str(pathlib.PurePosixPath(path).joinpath(p_name))
         del_cmd = 'su hdfs -c \'' + del_cmd + '\''
         MyHdfsFile.exec_command(hdfs_ip=hdfs_ip, command=del_cmd, username=username, password=password, port=port)
 
     @staticmethod
     def delete_hive_ssh(hdfs_ip: str, table: str, p_name: str, username: str, password: str, port: int = 22):
         """
-        # del_cmd = 'hadoop dfs -ls /user/hive/warehouse/posflow.db/t1_trxrecprd_v2'
+        # del_cmd = 'hdfs dfs -ls /user/hive/warehouse/posflow.db/t1_trxrecprd_v2'
         :param hdfs_ip:
         :param table:
         :param p_name:

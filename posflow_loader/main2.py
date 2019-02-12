@@ -148,6 +148,7 @@ def run_remove_files(conf: ConfigData, the_date: str, delta_day=0):
     # file_pre1 = 't1_trxrecord_',
     # file_ext2 = "_V2.csv",
 
+
 if __name__ == "__main__":
     the_conf = ConfigData(p_is_test=False)
 

@@ -58,19 +58,91 @@ WITH SERDEPROPERTIES (
 )
 STORED AS TEXTFILE""".format(111)
 
-# HUE Query里的字符方式
+# HUE Query里的字符方式 ,创建分区表
     """
+CREATE TABLE if not exists  rds_posflow.th_branch_info
+( mcht_branch_id	STRING,
+  mcht_cd	STRING,
+  branch_cd	STRING,
+  appr_date	STRING,
+  delete_date	STRING,
+  aip_bran_cd	STRING,
+  busi_area	STRING,
+  account	STRING,
+  account_name	STRING,
+  branch_business_status	STRING
+) PARTITIONED BY (cal_date STRING)
+ CLUSTERED BY (mcht_cd) into 20 BUCKETS
+ ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+  'separatorChar' = ',',
+  'quoteChar' = '\"',
+  'escapeChar' = '\\'
+)
+STORED AS TEXTFILE
+"""
+# #给分区表插入数据
+"""
+INSERT OVERWRITE TABLE rds_posflow.th_branch_info PARTITION (cal_date ='20190121')
+SELECT * FROM th_branch_info_20190121
+"""
+
+# 查询分区表
+"""
+SELECT COUNT(*) FROM  rds_posflow.th_branch_info WHERE cal_date ='20190121'
+"""
+# 删除分区表
+"ALTER TABLE rds_posflow.th_branch_info DROP IF EXISTS PARTITION (cal_date='20190129')"
+
+# 统计分区表
+"""
+SELECT COUNT(*) as numrow,cal_date FROM  rds_posflow.th_branch_info GROUP BY cal_date
+"""
+
+#   	numrow	cal_date
+#  1	1774259	20190121
+#  2	1774300	20190122
+#  3	1784709	20190122_old
+#  4	1774334	20190123
+#  5	1801479	20190123_old
+#  6	1774381	20190124
+#  7	1803545	20190124_old
+#  8	1774394	20190125
+#  9	1804617	20190125_old
+#  10	1774394	20190126
+#  11	1804617	20190126_old
+#  12	1774394	20190127
+#  13	1774418	20190128
+#  14	1774445	20190129
+#  15	1774475	20190130
+#  下面改为分区计算
+#  16	1774510	20190131
+#  17	1774520	20190201
+#  18	1774532	20190202
+#  19	1774533	20190203
+#  20	1774533	20190204
+#  21	1774533	20190205
+#  22	1774533	20190206
+#  23	1774533	20190207
+#  24	1774533	20190208
+#  25	1774533	20190209
+
+
+
+
+# HUE Query里的字符方式
+"""
 CREATE TABLE if not exists  rds_posflow.th_branch_info_20190126
-( mcht_branch_id	string,
-  mcht_cd	string,
-  branch_cd	string,
-  appr_date	string,
-  delete_date	string,
-  aip_bran_cd	string,
-  busi_area	string,
-  account	string,
-  account_name	string,
-  branch_business_status	string
+( mcht_branch_id	STRING,
+  mcht_cd	STRING,
+  branch_cd	STRING,
+  appr_date	STRING,
+  delete_date	STRING,
+  aip_bran_cd	STRING,
+  busi_area	STRING,
+  account	STRING,
+  account_name	STRING,
+  branch_business_status	STRING
 ) CLUSTERED BY (mcht_cd) into 20 BUCKETS
  ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 WITH SERDEPROPERTIES (
@@ -81,11 +153,11 @@ WITH SERDEPROPERTIES (
 STORED AS TEXTFILE
 """
 
-    p_sql_s = """
+p_sql_s = """
 set hive.enforce.bucketing = true;
 set mapreduce.job.reduces=20;
 """
-    p_sql_s = p_sql_s + """
+p_sql_s = p_sql_s + """
 insert into rds_posflow.th_branch_info_20190126
 select 
   if( s.mcht_cd is null and s.branch_cd is null, d.mcht_branch_id, s.mcht_branch_id ) as mcht_branch_id,
