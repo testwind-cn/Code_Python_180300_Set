@@ -29,10 +29,10 @@ def run_unzip_file(conf: ConfigData, the_date, folder_type=2):
     else:
         return
 
-    zip_path = conf.get_zip_path(1)
-    data_path = conf.get_data_path(1)
+    zip_path = conf.get_zip_path()
+    data_path = conf.get_data_path()
 
-    f_name = conf.get_zip_name("", 1)  # "t1_trxrecord_" the_date # "_V2.csv"
+    f_name = conf.get_zip_name("")  # "t1_trxrecord_" the_date # "_V2.csv"
 
     print("Start\n")
 
@@ -64,10 +64,10 @@ def run_unzip_file(conf: ConfigData, the_date, folder_type=2):
 
 def run_conv_file_local(conf: ConfigData, the_date: str, is_baoli=True):
     the_date = StrTool.get_the_date_str(the_date)
-    root_path = conf.get_data_path(1)
-    dest_dir = conf.get_utf8_path(1)
+    root_path = conf.get_data_path()
+    dest_dir = conf.get_utf8_path()
 
-    f_name = conf.get_file_name(the_date, 1)  # "t1_trxrecord_" the_date # "_V2.csv"
+    f_name = conf.get_file_name(the_date)  # "t1_trxrecord_" the_date # "_V2.csv"
 
     print("Start\n")
 
@@ -83,10 +83,10 @@ def run_conv_file_local(conf: ConfigData, the_date: str, is_baoli=True):
 def run_conv_file_hdfs(conf: ConfigData, the_date: str, is_baoli=True):
     the_date = StrTool.get_the_date_str(the_date)
     client = Client(conf.hdfs_ip())  # "http://10.2.201.197:50070"
-    root_path = conf.get_data_path(1)  # 'D:/DATA/UNZIP/'
-    dest_dir = conf.get_hdfs_path(1)
+    root_path = conf.get_data_path()  # 'D:/DATA/UNZIP/'
+    dest_dir = conf.get_hdfs_path()
 
-    f_name = conf.get_file_name(the_date, 1)  # "t1_trxrecord_" the_date # "_V2.csv"
+    f_name = conf.get_file_name(the_date)  # "t1_trxrecord_" the_date # "_V2.csv"
 
     print("Start\n")
 
@@ -129,11 +129,11 @@ def run_conv_file_local_to_hdfs(conf: ConfigData, the_date: str, is_baoli=True):
     """
     the_date = StrTool.get_the_date_str(the_date)
     p_client = MyClient(conf.hdfs_ip())  # "http://10.2.201.197:50070"
-    root_path = os.path.join(conf.get_data_path(1), the_date)
-    dest_dir1 = os.path.join(conf.get_utf8_path(1), the_date)
-    dest_dir2 =  str(pathlib.PurePosixPath(conf.get_hdfs_path(1)).joinpath(the_date))
+    root_path = os.path.join(conf.get_data_path(), the_date)
+    dest_dir1 = os.path.join(conf.get_utf8_path(), the_date)
+    dest_dir2 = str(pathlib.PurePosixPath(conf.get_hdfs_path()).joinpath(the_date))
 
-    f_name = conf.get_file_name(the_date, 1)  # "t1_trxrecord_" the_date # "_V2.csv"
+    f_name = conf.get_file_name(the_date)  # "t1_trxrecord_" the_date # "_V2.csv"
 
     print("Start\n")
 
@@ -193,9 +193,9 @@ def run_hive_test(conf: ConfigData):
 
 def run_remove_files(conf: ConfigData, the_date: str, delta_day=0):
     f_date_str = StrTool.get_the_date_str(the_date, delta_day)  # "20181101"
-    data_path = os.path.join(conf.get_data_path(1), f_date_str)
-    utf8_path = os.path.join(conf.get_utf8_path(1), f_date_str)
-    hdfs_path = str(pathlib.PurePosixPath(conf.get_hdfs_path(1)).joinpath(f_date_str))
+    data_path = os.path.join(conf.get_data_path(), f_date_str)
+    utf8_path = os.path.join(conf.get_utf8_path(), f_date_str)
+    hdfs_path = str(pathlib.PurePosixPath(conf.get_hdfs_path()).joinpath(f_date_str))
 
     a_client = MyClient(conf.hdfs_ip())  # "http://10.2.201.197:50070"
 
@@ -225,9 +225,9 @@ def run_hive(conf: ConfigData, the_date: str, is_baoli=True):
     cur = conn.cursor()
 
     the_date = StrTool.get_the_date_str(the_date)  # "20181101"
-    root_path = conf.get_hdfs_path(1)  # "/shouyinbao/bl_shouyinbao/UTF8/"
-    f_name = conf.get_file_name(the_date, 1)  # "t1_trxrecord_" the_date # "_V2.csv"
-    table_name = conf.get_table_name(1)
+    root_path = conf.get_hdfs_path()  # "/shouyinbao/bl_shouyinbao/UTF8/"
+    f_name = conf.get_file_name(the_date)  # "t1_trxrecord_" the_date # "_V2.csv"
+    table_name = conf.get_table_name()
 
     print("Start\n")
 

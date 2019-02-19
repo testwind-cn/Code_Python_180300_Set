@@ -40,6 +40,7 @@ class ConfigData:
         RealData(test_date="20181205",
 
                  hive_table1="rds_posflow.t1_trxrecprd_v2",  # 表名只能小写
+                 hive_table2="rds_posflow.t1_trxrecprd_v2_tmp",  # 表名只能小写
                  hive_table3="rds_posflow.loginfo_rsp_zc",
                  hive_table4="rds_posflow.rxinfo_rsp_zc",
                  hive_table5="rds_posflow.loginfo_rsp_agt_zc",
@@ -50,6 +51,7 @@ class ConfigData:
                  hive_table10="rds_posflow.branch_apms_bl",
 
                  hive_head1="1",    # 1、有表头，需要删除, need_head=False
+                 hive_head2="1",
                  hive_head3="0",    # 0、无表头，不要删除, need_head=True
                  hive_head4="0",
                  hive_head5="0",
@@ -62,6 +64,7 @@ class ConfigData:
                  hive_add_date_10="1",   # 在最后一列，追加文件日期
 
                  file_date_delta1="1",  # 时间偏移一天，2019-1-9 处理 2019-1-8 ， 没有就是0
+                 file_date_delta2="1",
                  file_date_delta7="1",  # 时间偏移一天，2019-1-9 处理 2019-1-8 ， 没有就是0
                  file_date_delta8="1",
 
@@ -88,6 +91,11 @@ class ConfigData:
                  file_ftp1="V2.zip",               # "t1_trxrecord_20190108_V2.zip"
                  file_zip1="V2.zip",               # "t1_trxrecord_20190108_V2.zip"
                  file_ext1="_V2.csv",               # "t1_trxrecord_20190108_V2.csv"
+
+                 file_pre2='t1_trxrecord_',
+                 file_ftp2="V2.zip",  # "t1_trxrecord_20190108_V2.zip"
+                 file_zip2="V2.zip",  # "t1_trxrecord_20190108_V2.zip"
+                 file_ext2="_V2.csv",
 
                  remote_path_ftp_3="/upload/",
                  # 2019-1-8 03:48 来,无表头 GB      # /upload/20190108.zip
@@ -129,6 +137,7 @@ class ConfigData:
                  file_ext10=".txt",                 # "Branch_APMS_2nd_20190108.txt"
 
                  hdfs_dir_1="/data/posflow/shouyinbao_utf8/",
+                 hdfs_dir_2="/data/posflow/shouyinbao_tmp_utf8/",
                  hdfs_dir_3="/data/posflow/allinpay_utf8_zc/",
                  hdfs_dir_7="/data/posflow/allinpay_utf8_bl/")
 
@@ -161,6 +170,11 @@ class ConfigData:
                   local_path_zip_1="/home/data/SYB/",
                   local_path_data_1="/home/data/posflow/shouyinbao_data/",
                   local_path_utf8_1="/home/data/posflow/shouyinbao_utf8/",
+
+                  local_path_ftp_2="/home/data/SYB/",
+                  local_path_zip_2="/home/data/SYB/",
+                  local_path_data_2="/home/data/posflow/shouyinbao_tmp_data/",
+                  local_path_utf8_2="/home/data/posflow/shouyinbao_tmp_utf8/",
 
                   local_path_ftp_3="/home/data/posflow/allinpay_zip_zc/",
                   local_path_zip_3="/home/data/posflow/allinpay_zip_zc/",
@@ -277,7 +291,7 @@ class ConfigData:
         if p_id < 0:
             p_id = self.m_project_id
         f_name0 = ""
-        if p_id == 1:
+        if p_id == 1 or p_id == 2:
             f_name1 = self.get_data("file_pre" + str(p_id))
             f_name2 = self.get_data("file_zip" + str(p_id))
             if len(f_name1) > 0 or len(f_name2) > 0:
@@ -292,7 +306,7 @@ class ConfigData:
         if p_id < 0:
             p_id = self.m_project_id
         f_name0 = ""
-        if p_id == 1 or p_id == 10:
+        if p_id == 1 or p_id == 2 or p_id == 10:
             f_name1 = self.get_data("file_pre" + str(p_id))
             f_name2 = self.get_data("file_ftp" + str(p_id))
             if len(f_name1) > 0 or len(f_name2) > 0:
@@ -307,7 +321,7 @@ class ConfigData:
         if p_id < 0:
             p_id = self.m_project_id
         f_name0 = ""
-        if p_id == 1 or p_id == 10:
+        if p_id == 1 or p_id == 2 or p_id == 10:
             f_name1 = self.get_data("file_pre" + str(p_id))
             f_name2 = self.get_data("file_ext" + str(p_id))
             if len(f_name1) > 0 or len(f_name2) > 0:
@@ -409,6 +423,8 @@ class ConfigData:
         f_dir = ""
         if p_id == 1:
             f_dir = self.get_data("local_path_ftp_1")
+        if p_id == 2:
+            f_dir = self.get_data("local_path_ftp_2")
         if 3 <= p_id <= 6:
             f_dir = self.get_data("local_path_ftp_3")
         if 7 <= p_id <= 10:
@@ -422,6 +438,8 @@ class ConfigData:
         f_dir = ""
         if p_id == 1:
             f_dir = self.get_data("local_path_zip_1")
+        if p_id == 2:
+            f_dir = self.get_data("local_path_zip_2")
         if 3 <= p_id <= 6:
             f_dir = self.get_data("local_path_zip_3")
         return f_dir
@@ -432,6 +450,8 @@ class ConfigData:
         f_dir = ""
         if p_id == 1:
             f_dir = self.get_data("local_path_data_1")
+        if p_id == 2:
+            f_dir = self.get_data("local_path_data_2")
         if 3 <= p_id <= 6:
             f_dir = self.get_data("local_path_data_3")
         if 7 <= p_id <= 10:
@@ -444,6 +464,8 @@ class ConfigData:
         f_dir = ""
         if p_id == 1:
             f_dir = self.get_data("local_path_utf8_1")
+        if p_id == 2:
+            f_dir = self.get_data("local_path_utf8_2")
         if 3 <= p_id <= 6:
             f_dir = self.get_data("local_path_utf8_3")
         if 7 <= p_id <= 10:
@@ -456,6 +478,8 @@ class ConfigData:
         f_dir = ""
         if p_id == 1:
             f_dir = self.get_data("hdfs_dir_1")
+        if p_id == 2:
+            f_dir = self.get_data("hdfs_dir_2")
         if 3 <= p_id <= 6:
             f_dir = self.get_data("hdfs_dir_3")
         if 7 <= p_id <= 10:
