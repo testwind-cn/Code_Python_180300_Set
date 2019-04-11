@@ -208,6 +208,8 @@ select
     cast(current_timestamp() as string) as last_update_time
 from rds_posflow.th_branch_info where cal_date='{}' group by mcht_cd CLUSTER by( mcht_cd)""".format(f_today_date)
 
+    print(p_sql_s)
+
     p_sql_context.sql(p_sql_s)
 
     print(f_today_date + ": th_branch_info_statictis 表数据已插入完成")

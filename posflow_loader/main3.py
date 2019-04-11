@@ -26,7 +26,6 @@ def run_sftp_file(conf: ConfigData, the_date: str):
     # "file_ext" + str(conf.the_id)
     file_name = conf.get_ftp_name(the_date)
 
-    # allinpay_ftp_ip_bl allinpay_ftp_port_bl allinpay_ftp_user_bl allinpay_ftp_pass_bl
     a = sftp_tool.Sftp_Tool(h=conf.get_ftp_ip(), p=int(conf.get_ftp_port()),
                             u=conf.get_ftp_user(), s=conf.get_ftp_pass(),
                             r=f_dir, d=t_dir)
@@ -62,9 +61,10 @@ def run_conv_file_local_to_hdfs(conf: ConfigData, the_date: str):
     files = MyLocalFile.get_child_file(data_path)
     for aFile in files:
         short_name = os.path.basename(aFile).lower()
+        f_name = pathlib.PurePath(aFile).name
         if short_name == file_name:
-            to_file1 = str(pathlib.PurePath(dest_dir1).joinpath(pathlib.PurePath(aFile).name))
-            to_file2 = str(pathlib.PurePosixPath(dest_dir2).joinpath(pathlib.PurePath(aFile).name))
+            to_file1 = str(pathlib.PurePath(dest_dir1).joinpath(f_name))
+            to_file2 = str(pathlib.PurePosixPath(dest_dir2).joinpath(f_name))
             f_add_date = conf.get_hive_add_date(the_date)
             f_need_head = conf.get_hive_head()
             MyLocalFile.conv_file_local(aFile, to_file1, need_first_line=f_need_head, p_add_head=f_add_date)
@@ -84,21 +84,17 @@ def run_hive(conf: ConfigData, the_date: str):
     conn = connect(host=conf.hive_ip(), port=conf.hive_port(), auth_mechanism=conf.hive_auth(), user=conf.hive_user())
     cur = conn.cursor()
 
-    the_date = StrTool.get_the_date_str(the_date)  # "20181101"
-    # hdfs_dir_bl
-    root_path = str(pathlib.PurePosixPath(conf.get_hdfs_path()).joinpath(the_date))  # "/data/posflow/allinpay_utf8_zc/20181101/"
-    # file_ext7 = conf.get_data("file_ext7")  # _loginfo_rsp_bl_new.csv   # 20181101_loginfo_rsp_bl_new.csv
-    # file_ext8 = conf.get_data("file_ext8")  # _rsp_agt_bl_new.del       # 20181101_rsp_agt_bl_new.del
-    # file_ext9 = conf.get_data("file_ext9")  # _rxinfo_rsp_bl.txt        # 20181101_rxinfo_rsp_bl.txt
-
     print("Start\n")
 
-    # file7 = str(pathlib.PurePosixPath(root_path).joinpath(the_date + file_ext7))
-    # t_list = ["hive_table7", "hive_table8", "hive_table9"]
-
-    # "file_ext" + str(conf.the_id)
+    the_date = StrTool.get_the_date_str(the_date)  # "20181101"
+    # hdfs_dir_bl
+    root_path = str(pathlib.PurePosixPath(conf.get_hdfs_path()).joinpath(the_date))
     file_name = str(pathlib.PurePosixPath(root_path).joinpath(conf.get_file_name(the_date)))
-    # "hive_table" + str(conf.the_id)
+    # "/data/posflow/allinpay_utf8_zc/20181101/"
+    # 20181101_loginfo_rsp_bl_new.csv
+    # 20181101_rsp_agt_bl_new.del
+    # 20181101_rxinfo_rsp_bl.txt
+
     table_name = conf.get_table_name()
 
     if MyHdfsFile.isfile(a_client, file_name):
@@ -126,10 +122,8 @@ def run_remove_files(conf: ConfigData, the_date: str, delta_day=0):
 
 def run_remove_hive(conf: ConfigData, the_date: str, delta_day=0):
     f_date_str = StrTool.get_the_date_str(the_date, delta_day)  # "20181101"
-    # del_table7 = conf.get_data("hive_table7") # "rds_posflow.loginfo_rsp_bl"
-    # del_file7 = the_date + conf.get_data("file_ext7").replace('.', '*.')
 
-    del_table = conf.get_table_name()   # "hive_table" + str(conf.the_id)
+    del_table = conf.get_table_name()   # "hive_table" + str(conf.the_id) # "rds_posflow.loginfo_rsp_bl"
     del_file = conf.get_file_name(f_date_str).replace('.', '*.')  # "file_ext" + str(conf.the_id)
 
     MyHdfsFile.delete_hive_ssh(conf.get_data("cdh_ip"), table=del_table, p_name=del_file, username=conf.get_data("cdh_user"), password=conf.get_data("cdh_pass"))
@@ -200,7 +194,6 @@ if __name__ == "__main__":
         # 修改路径 remote_path_ftp_9="/ftpdata/thblposloan/sftp/data/thblposloan/traderisk2/",
         # 7、main3.py 9 20180420 202      （2019-1-25中午）
 
-
         # Branch_APMS_2nd_20160701.txt  有多 delta 1天
         # 共执行了922天：因为缺了 20171010 的文件； 2016-10-19 有多的两个补数文件
         # 1、20190110 191    2019-1-9    2018-7-3
@@ -213,7 +206,6 @@ if __name__ == "__main__":
         # 上面都是 205个文件
         # 再风险 4、6、9，  运行 4 20180702 190
         # 再流水 3、5、7，8  运行 3 20180702 190
-
 
         date2 = date1 - datetime.timedelta(days=delta)
         day_str2 = date2.strftime("%Y%m%d")

@@ -234,7 +234,7 @@ class MyLocalFile:
         print("ok")
 
     @staticmethod
-    def conv_file_local(from_file: str, to_file: str, need_first_line: bool=False, p_add_head: str="", p_add_tail: str=""):
+    def conv_file_local(from_file: str, to_file: str, need_first_line: bool = False, p_add_head: str = "", p_add_tail: str = ""):
         if not os.path.isfile(from_file):
             return
         new_path = os.path.dirname(to_file)
@@ -255,8 +255,7 @@ class MyLocalFile:
                     data = data[0:len(data) - 1] + ",\"" + p_add_tail + "\"\n"
                 else:
                     data = data + ",\"" + p_add_tail + "\""
-            #  print(data + "\n\n")
-            #  print(i)
+            #       下面是Python 2.7 的处理方式
             #        code = chardet.detect(dd)['encoding']
             #        print(code)
             #        middle = dd.decode("gb18030")  # gb2312
@@ -297,6 +296,11 @@ class MyHdfsFile:
     @staticmethod
     def isdir(client: Client, path: str):
         return MyHdfsFile.is_exist(client, path, 2)
+
+    @staticmethod
+    def get_name(path: str):
+        short_name = pathlib.PurePosixPath(path).name
+        return short_name
 
     @staticmethod
     def check_file(client: Client, path: str, p_name: str= '', default: bool=True):

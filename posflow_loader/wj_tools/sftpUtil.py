@@ -27,6 +27,18 @@ def getConnect(host, port, username, password):
     return result
 
 
+# 关闭连接
+def closeConnect(handle: paramiko.Transport):
+    result = [1, ""]
+    try:
+        if isinstance(handle, paramiko.Transport):
+            handle.close()
+    except Exception as e:
+        result = [-1, "close connection fail, reason:{0}".format(e)]
+
+    return result
+
+
 # 下载文件
 def download(handle, remotePath, localAbsDir):
     """
