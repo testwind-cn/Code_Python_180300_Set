@@ -1,9 +1,14 @@
 # wangjun add
 
-.idea
-.idea/
-.idea\
 
+.idea/workspace.xml
+/.idea/workspace.xml
+*/.idea/workspace.xml
+*/*/.idea/workspace.xml
+*/*/*/.idea/workspace.xml
+
+
+# wangjun add
 
 
 # Byte-compiled / optimized / DLL files
