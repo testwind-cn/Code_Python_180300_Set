@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal">
+    <data-source name="Apache Hive - @localhost" uuid="c8419345-e8c6-4d4d-8dc0-d6680736a90d">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="HIVE" exact-version="0" />
+      <secret-storage>master_key</secret-storage>
+    </data-source>
+  </component>
+</project>
