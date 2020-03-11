@@ -1,7 +1,7 @@
 # Python
 
 
-# 2020-03-11 [posflow_loader] 检查代码。
+# 2020-03-11 (posflow_loader) 检查代码。
 
 生产是 
 /app/code/venv/venv1_hive/bin/python3  /app/code/posflow_loader/main1.py 1
