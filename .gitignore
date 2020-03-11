@@ -1,19 +1,22 @@
 ﻿# wangjun add
 
+.idea/dataSources/
+.idea/dictionaries/
+.idea/inspectionProfiles/
+markdown-navigator/
+venv/
+__pycache__/
+
+.idea/dataSources.xml
+.idea/dataSources.local.xml
+
+.idea/markdown-navigator.xml
+.idea/markdown-exported-files.xml
 
 .idea/workspace.xml
-/.idea/workspace.xml
-*/.idea/workspace.xml
-*/*/.idea/workspace.xml
-*/*/*/.idea/workspace.xml
-markdown*.xml
-markdown*/
-
-*/.idea/markdown*/*.*
-markdown-navigator/profiles_settings.xml
-
 
 # wangjun add
+
 
 
 # Byte-compiled / optimized / DLL files
@@ -116,4 +119,4 @@ ENV/
 
 # mypy
 .mypy_cache/
-资产FTP/sftp_20181115/.idea/misc.xml
+
