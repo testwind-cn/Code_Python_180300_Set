@@ -5,14 +5,14 @@ from impala.dbapi import connect
 from impala.util import as_pandas
 from hdfs.client import Client
 from impala.dbapi import connect
-from wj_tools import sftp_tool
-from wj_tools.file_check import MyLocalFile
-from wj_tools.file_check import MyHdfsFile
-from wj_tools.hdfsclient import MyClient  # hdfs
+from py_tools import sftp_tool
+from py_tools.file_check import MyLocalFile
+from py_tools.file_check import MyHdfsFile
+from py_tools.hdfsclient import MyClient  # hdfs
 # hive
 # data path config file
 from conf import ConfigData
-from wj_tools.str_tool import StrTool
+from py_tools.str_tool import StrTool
 
 
 def run_hive(conf: ConfigData, the_date: str):

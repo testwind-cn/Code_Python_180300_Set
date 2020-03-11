@@ -1,7 +1,7 @@
 #!coding:utf-8
 import os
 import pathlib
-from wj_tools.file_check import MyLocalFile
+from py_tools.file_check import MyLocalFile
 # data path config file
 from conf import ConfigData
 import datetime
