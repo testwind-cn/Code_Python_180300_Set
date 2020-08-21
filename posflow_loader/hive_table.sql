@@ -25,6 +25,9 @@ CREATE TABLE rds_posflow.loginfo_rsp_agt_bl (
     trans_area      string,
     origin_time     string
 )
+PARTITIONED BY (
+    p_date date COMMENT '日期分区'
+)
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
 STORED AS TEXTFILE;
 
@@ -72,16 +75,19 @@ CREATE TABLE rds_posflow.loginfo_rsp_agt_zc (
     txn_amt             string,
     trans_amt           string
 )
+PARTITIONED BY (
+    p_date date COMMENT '日期分区'
+)
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
 STORED AS TEXTFILE;
 
 -- 资产流水
 
-DROP TABLE IF EXISTS rds_posflow.rxinfo_rsp_zc;
-DROP TABLE IF EXISTS rds_posflow.rxinfo_rsp_agt_zc;
+DROP TABLE IF EXISTS rds_posflow.rxinfo_rsp_zc_01;
+DROP TABLE IF EXISTS rds_posflow.rxinfo_rsp_agt_zc_01;
 
--- CREATE TABLE IF NOT EXISTS rds_posflow.rxinfo_rsp_zc (
-CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
+-- CREATE TABLE IF NOT EXISTS rds_posflow.rxinfo_rsp_zc_01 (
+CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc_01 (
     rx_sn       string,
     inst_date   string,
     mcht_cd     string,
@@ -92,6 +98,9 @@ CREATE TABLE rds_posflow.rxinfo_rsp_agt_zc (
     rx_info3    string,
     rx_info4    string,
     rx_info5    string
+)
+PARTITIONED BY (
+    p_date INT COMMENT '日期分区'
 )
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
 STORED AS TEXTFILE;
@@ -356,11 +365,11 @@ LOAD DATA
     INTO TABLE rds_posflow.tm_branch_info_statictis
 ;
 
---------------
+-- --------------
 
 
 -- 收银宝分区表
-CREATE TABLE rds_posflow.t1_trxrecprd_v2_tmp (
+CREATE TABLE rds_posflow.t1_trxrecprd_v2_01 (
     sn              string,
     psn             string,
     mcht_cd         string,
@@ -409,10 +418,60 @@ CREATE TABLE rds_posflow.t1_trxrecprd_v2_tmp (
     qdjy_type       string
 )
 PARTITIONED BY (
-    p_branch STRING COMMENT '分公司分区', p_date INT COMMENT '日期分区'
+    p_date INT COMMENT '日期分区' -- p_branch STRING COMMENT '分公司分区',
 )
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
 STORED AS TEXTFILE;
+
+
+
+
+CREATE TABLE `rds_posflow.t99_trxnum_code_2020_2`(
+    `syb_cd` string COMMENT '收银宝代码',
+    `cn` string COMMENT '受理中文',
+    `sl_cd` string COMMENT '受理代码',
+    `card_org` string COMMENT '机构代码',
+    create_user string COMMENT '创建人',
+    create_date string COMMENT '创建日期'
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+
+CREATE TABLE `rds_posflow.bl_total_transflow`(
+  `sn` string COMMENT '',
+  `inst_time` string COMMENT '',
+  `settle_date` string COMMENT '',
+  `mcht_cd` string COMMENT '',
+  `mcht_type` string COMMENT '',
+  `term_id` string COMMENT '',
+  `card_type` string COMMENT '',
+  `currcy_code_trans` string COMMENT '',
+  `card_no` string COMMENT '',
+  `issue_bank` string COMMENT '',
+  `txn_type` string COMMENT '',
+  `txn_amt` string COMMENT '',
+  `trans_amt` string COMMENT '',
+  `fee` string COMMENT '',
+  `txn_status` string COMMENT '',
+  `org_flg` string COMMENT '',
+  `area_flag` string COMMENT '',
+  `ori_dt` string COMMENT '',
+  `create_time` string COMMENT '创建日期',
+  `create_user` string COMMENT '创建人'
+) COMMENT '保理流水合并表'
+PARTITIONED BY
+(
+  `inst_date` date,
+  `agt_type` char(1)
+)
+STORED AS ORC;
+
+
+
+
+
+
 
 
 LOAD DATA
